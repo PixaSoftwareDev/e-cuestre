@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: ecuestre-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ecuestre
+      POSTGRES_PASSWORD: ecuestre
+      POSTGRES_DB: ecuestre
+    ports:
+      - "5435:5432"
+    volumes:
+      - ecuestre-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecuestre -d ecuestre"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # App en producción. Para desarrollo local corré `pnpm dev` y usá solo `db`.
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Variables públicas (se inlinan en build-time). Vienen del .env.
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME}
+        NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${NEXT_PUBLIC_PAYPAL_CLIENT_ID}
+        NEXT_PUBLIC_PAYPAL_CURRENCY: ${NEXT_PUBLIC_PAYPAL_CURRENCY}
+        NEXT_PUBLIC_SESSION_RECORDING: ${NEXT_PUBLIC_SESSION_RECORDING}
+    container_name: ecuestre-app
+    restart: unless-stopped
+    profiles: ["prod"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Dentro de la red de compose la base se llama "db".
+      DATABASE_URL: postgresql://ecuestre:ecuestre@db:5432/ecuestre?schema=public
+    env_file:
+      - .env
+    volumes:
+      # Persiste las imágenes subidas desde el admin.
+      - ecuestre-uploads:/app/public/uploads
+    ports:
+      - "3000:3000"
+
+volumes:
+  ecuestre-db-data:
+  ecuestre-uploads:

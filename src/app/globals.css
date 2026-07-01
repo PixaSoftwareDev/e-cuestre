@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Sistema de diseño Ecuestre.
+  Los tokens definidos acá generan utilidades de Tailwind (bg-primary, text-fg,
+  rounded-brand, font-heading...). Sus valores por defecto se pueden sobrescribir
+  en runtime por marca inyectando las mismas variables CSS (ver BrandThemeProvider).
+*/
+@theme {
+  /* Colores de marca (valores por defecto = theme Ecuestre) */
+  --color-bg: #faf8f4;
+  --color-fg: #1c1a17;
+  --color-primary: #1f3d2b;
+  --color-primary-fg: #f6f3ec;
+  --color-accent: #b08d57;
+  --color-card: #ffffff;
+  --color-muted: #7a736a;
+  --color-border: #e7e1d6;
+
+  /* Radios */
+  --radius-brand: 0.25rem;
+
+  /* Tipografías (se cargan en layout.tsx con next/font) */
+  --font-heading: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Sombras suaves y premium */
+  --shadow-soft: 0 1px 2px rgba(28, 26, 23, 0.04), 0 8px 24px rgba(28, 26, 23, 0.06);
+  --shadow-lift: 0 4px 12px rgba(28, 26, 23, 0.08), 0 24px 48px rgba(28, 26, 23, 0.10);
+
+  /* Easing para transiciones suaves */
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-body);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-heading);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-primary-fg);
+  }
+
+  /* Scrollbar sutil */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-muted) 40%, transparent);
+    border-radius: 999px;
+    border: 3px solid var(--color-bg);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Contenedor centrado con padding responsivo */
+  .container-page {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* Kicker: pequeño texto en versalitas con tracking amplio (muy usado en lujo) */
+  .kicker {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Aparición suave al montar (para hero / secciones) */
+  .animate-rise {
+    animation: rise 0.8s var(--ease-smooth) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }

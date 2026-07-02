@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Search } from "lucide-react";
 import {
   getBrands,
   getCategories,
@@ -7,6 +8,8 @@ import {
   type ProductFilters,
 } from "@/lib/queries";
 import { ProductCard } from "@/components/site/product-card";
+import { ProductSort } from "@/components/site/product-sort";
+import { Reveal } from "@/components/site/reveal";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Tienda" };
@@ -17,12 +20,6 @@ type SearchParams = Promise<{
   q?: string;
   orden?: ProductFilters["sort"];
 }>;
-
-const SORTS: { value: NonNullable<ProductFilters["sort"]>; label: string }[] = [
-  { value: "newest", label: "Novedades" },
-  { value: "price-asc", label: "Precio ↑" },
-  { value: "price-desc", label: "Precio ↓" },
-];
 
 export default async function ProductosPage({
   searchParams,
@@ -65,58 +62,54 @@ export default async function ProductosPage({
       <header className="mb-8">
         <p className="kicker text-accent">Catálogo</p>
         <h1 className="mt-2 font-heading text-4xl md:text-5xl">La tienda</h1>
-        <p className="mt-3 text-sm text-muted">
-          {products.length}{" "}
-          {products.length === 1 ? "producto" : "productos"}
-          {brandName ? ` · ${brandName}` : ""}
-          {categoryName ? ` · ${categoryName}` : ""}
-        </p>
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[240px_1fr] lg:gap-12">
+      <div className="grid gap-8 lg:grid-cols-[248px_1fr] lg:gap-12">
         {/* ── Sidebar de filtros ─────────────────────────────── */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
           {/* En móvil se pliega con <details> nativo (sin JS). */}
-          <details className="group" open>
-            <summary className="flex cursor-pointer list-none items-center justify-between border-b border-border pb-3 lg:cursor-default">
-              <span className="kicker text-muted">Filtros</span>
+          <details className="group/f" open>
+            <summary className="flex cursor-pointer list-none items-center justify-between border-b border-border pb-4 lg:cursor-default">
+              <span className="font-heading text-lg">Filtros</span>
               {hasFilters && (
                 <Link
                   href="/productos"
-                  className="text-xs text-accent hover:underline"
+                  className="text-xs text-accent underline-offset-4 hover:underline"
                 >
-                  Limpiar
+                  Limpiar todo
                 </Link>
               )}
             </summary>
 
-            <div className="space-y-8 pt-6">
-              <FilterGroup title="Buscar">
-                <form action="/productos" className="flex">
-                  {sp.marca && (
-                    <input type="hidden" name="marca" value={sp.marca} />
-                  )}
-                  {sp.categoria && (
-                    <input type="hidden" name="categoria" value={sp.categoria} />
-                  )}
-                  {sp.orden && (
-                    <input type="hidden" name="orden" value={sp.orden} />
-                  )}
-                  <input
-                    type="search"
-                    name="q"
-                    defaultValue={sp.q}
-                    placeholder="Buscar producto…"
-                    className="h-10 w-full rounded-brand border border-border bg-card px-3 text-sm focus-visible:border-primary focus-visible:outline-none"
-                  />
-                </form>
-              </FilterGroup>
+            <div className="space-y-9 pt-7">
+              <form action="/productos" className="relative">
+                {sp.marca && (
+                  <input type="hidden" name="marca" value={sp.marca} />
+                )}
+                {sp.categoria && (
+                  <input type="hidden" name="categoria" value={sp.categoria} />
+                )}
+                {sp.orden && (
+                  <input type="hidden" name="orden" value={sp.orden} />
+                )}
+                <Search
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+                  strokeWidth={1.5}
+                />
+                <input
+                  type="search"
+                  name="q"
+                  defaultValue={sp.q}
+                  placeholder="Buscar…"
+                  className="h-11 w-full rounded-lg border border-fg/15 bg-card pl-10 pr-4 text-sm transition-colors placeholder:text-muted hover:border-fg/25 focus-visible:border-primary focus-visible:outline-none"
+                />
+              </form>
 
               <FilterGroup title="Marca">
                 <FilterOption
                   href={makeHref({ marca: undefined, categoria: undefined })}
                   active={!sp.marca}
-                  label="Todas"
+                  label="Todas las marcas"
                 />
                 {brands.map((b) => (
                   <FilterOption
@@ -175,22 +168,7 @@ export default async function ProductosPage({
               )}
             </div>
 
-            <div className="flex items-center gap-1">
-              {SORTS.map((s) => (
-                <Link
-                  key={s.value}
-                  href={makeHref({ orden: s.value })}
-                  className={cn(
-                    "rounded-full px-3 py-1.5 text-xs transition-colors",
-                    activeSort === s.value
-                      ? "bg-fg/5 text-fg"
-                      : "text-muted hover:text-fg",
-                  )}
-                >
-                  {s.label}
-                </Link>
-              ))}
-            </div>
+            <ProductSort current={activeSort} />
           </div>
 
           {products.length === 0 ? (
@@ -206,9 +184,11 @@ export default async function ProductosPage({
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
+            <div className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 xl:grid-cols-4">
+              {products.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 3) * 0.06} y={18}>
+                  <ProductCard product={p} />
+                </Reveal>
               ))}
             </div>
           )}
@@ -229,8 +209,8 @@ function FilterGroup({
 }) {
   return (
     <div>
-      <h2 className="kicker mb-3 text-fg">{title}</h2>
-      <div className="flex flex-col gap-0.5">{children}</div>
+      <h2 className="kicker mb-2 text-muted">{title}</h2>
+      <div className="-mx-2 flex flex-col">{children}</div>
     </div>
   );
 }
@@ -248,12 +228,18 @@ function FilterOption({
     <Link
       href={href}
       className={cn(
-        "flex items-center rounded-brand px-3 py-1.5 text-sm transition-colors",
-        active
-          ? "bg-primary text-primary-fg"
-          : "text-muted hover:bg-fg/5 hover:text-fg",
+        "group/opt flex items-center gap-2.5 rounded-brand px-2 py-2 text-sm transition-colors",
+        active ? "font-medium text-primary" : "text-muted hover:text-fg",
       )}
     >
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full transition-all duration-300",
+          active
+            ? "bg-primary"
+            : "bg-transparent group-hover/opt:bg-fg/30",
+        )}
+      />
       {label}
     </Link>
   );

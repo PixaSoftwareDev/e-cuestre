@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CartButton } from "@/components/cart/cart-button";
+import { ThemeToggle } from "@/components/site/theme-toggle";
+import { FavoritesNavButton } from "@/components/site/favorites-nav-button";
+import { LanguageSwitcher } from "@/components/site/language-switcher";
+import { useSearch } from "@/store/search";
 
 type NavBrand = { slug: string; name: string };
 
@@ -15,68 +21,107 @@ export function Navbar({
   brands: NavBrand[];
   siteName: string;
 }) {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const openSearch = useSearch((s) => s.setOpen);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // En páginas con hero (home y marca) el navbar flota transparente encima;
+  // en el resto es una barra sólida. No es fijo: se va con el scroll.
+  const overlay = pathname === "/" || pathname.startsWith("/marca/");
+
+  const linkClass = cn(
+    "text-sm transition-colors",
+    overlay ? "text-white/90 hover:text-white" : "hover:text-primary",
+  );
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 transition-all duration-300 ease-[var(--ease-smooth)]",
-        scrolled
-          ? "border-b border-border bg-bg/85 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent",
+        "z-40",
+        overlay
+          ? "nav-overlay absolute inset-x-0 top-0 bg-gradient-to-b from-black/35 to-transparent text-white"
+          : "relative bg-bg",
       )}
     >
       <nav className="container-page flex h-16 items-center justify-between gap-4 md:h-20">
         {/* Izquierda: menú móvil + links desktop */}
         <div className="flex items-center gap-1 md:gap-6">
           <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-brand hover:bg-fg/5 md:hidden"
+            className="nav-icon inline-flex h-11 w-11 items-center justify-center md:hidden"
             aria-label="Menú"
             onClick={() => setMenuOpen(true)}
           >
             <Menu className="h-5 w-5" strokeWidth={1.5} />
           </button>
           <div className="hidden items-center gap-6 md:flex">
-            <Link href="/productos" className="text-sm hover:text-primary transition-colors">
+            <Link href="/productos" className={linkClass}>
               Tienda
             </Link>
             {brands.slice(0, 4).map((b) => (
-              <Link
-                key={b.slug}
-                href={`/marca/${b.slug}`}
-                className="text-sm hover:text-primary transition-colors"
-              >
+              <Link key={b.slug} href={`/marca/${b.slug}`} className={linkClass}>
                 {b.name}
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Centro: logo */}
+        {/* Centro: logo + nombre */}
         <Link
           href="/"
-          className="absolute left-1/2 -translate-x-1/2 font-heading text-xl tracking-tight md:text-2xl"
+          aria-label={siteName}
+          className="absolute left-1/2 flex -translate-x-1/2 items-center gap-3"
         >
-          {siteName}
+          {overlay ? (
+            <Image
+              src="/logo-blanco.png"
+              alt=""
+              width={60}
+              height={57}
+              sizes="60px"
+              priority
+              className="h-10 w-auto md:h-12"
+            />
+          ) : (
+            <>
+              <Image
+                src="/logo-negro.png"
+                alt=""
+                width={60}
+                height={57}
+                sizes="60px"
+                priority
+                className="h-10 w-auto md:h-12 dark:hidden"
+              />
+              <Image
+                src="/logo-blanco.png"
+                alt=""
+                width={60}
+                height={57}
+                sizes="60px"
+                priority
+                className="hidden h-10 w-auto md:h-12 dark:block"
+              />
+            </>
+          )}
+          <span className="font-heading text-xl tracking-tight md:text-2xl">
+            <span className="text-accent">E</span>
+            <span className="mx-[0.12em] text-accent">-</span>
+            <span className={overlay ? "text-white" : "text-fg"}>cuestre</span>
+          </span>
         </Link>
 
-        {/* Derecha: buscar + carrito */}
+        {/* Derecha: buscar + tema + carrito */}
         <div className="flex items-center gap-1">
-          <Link
-            href="/productos"
+          <button
+            onClick={() => openSearch(true)}
             aria-label="Buscar"
-            className="hidden h-11 w-11 items-center justify-center rounded-brand hover:bg-fg/5 md:inline-flex"
+            className="nav-icon inline-flex h-11 w-11 items-center justify-center"
           >
             <Search className="h-5 w-5" strokeWidth={1.5} />
-          </Link>
+          </button>
+          <FavoritesNavButton />
+          <ThemeToggle />
+          <LanguageSwitcher />
           <CartButton />
         </div>
       </nav>
@@ -87,7 +132,7 @@ export function Navbar({
           <div className="container-page flex h-16 items-center justify-between">
             <span className="font-heading text-xl">{siteName}</span>
             <button
-              className="inline-flex h-11 w-11 items-center justify-center rounded-brand hover:bg-fg/5"
+              className="nav-icon inline-flex h-11 w-11 items-center justify-center"
               aria-label="Cerrar menú"
               onClick={() => setMenuOpen(false)}
             >

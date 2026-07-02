@@ -9,6 +9,7 @@ import { formatMoney } from "@/lib/money";
 import { PageHeader, StatCard, Panel } from "@/components/admin/ui";
 import { RevenueChart } from "@/components/admin/charts";
 import { Badge } from "@/components/ui/badge";
+import { DollarSign, ShoppingCart, Package, AlertTriangle } from "lucide-react";
 
 const CURRENCY = process.env.NEXT_PUBLIC_PAYPAL_CURRENCY ?? "USD";
 
@@ -35,6 +36,7 @@ export default async function AdminDashboard() {
   return (
     <div>
       <PageHeader
+        kicker="Panel"
         title="Dashboard"
         description="Resumen del negocio en tiempo real."
       />
@@ -44,21 +46,25 @@ export default async function AdminDashboard() {
           label="Ingresos"
           value={formatMoney(stats.revenue, CURRENCY)}
           hint={`${stats.paidOrders} órdenes pagadas`}
+          icon={<DollarSign className="h-4 w-4" strokeWidth={1.75} />}
           accent
         />
         <StatCard
           label="Órdenes"
           value={String(stats.totalOrders)}
           hint={`${stats.pendingOrders} pendientes`}
+          icon={<ShoppingCart className="h-4 w-4" strokeWidth={1.75} />}
         />
         <StatCard
           label="Productos activos"
           value={String(stats.activeProducts)}
+          icon={<Package className="h-4 w-4" strokeWidth={1.75} />}
         />
         <StatCard
           label="Stock bajo"
           value={String(stats.lowStockVariants)}
           hint="variantes con ≤ 3 unidades"
+          icon={<AlertTriangle className="h-4 w-4" strokeWidth={1.75} />}
         />
       </div>
 

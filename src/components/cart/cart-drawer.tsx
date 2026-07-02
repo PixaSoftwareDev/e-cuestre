@@ -4,15 +4,22 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
-import { useCart, cartSubtotal } from "@/store/cart";
+import { useCart, cartSubtotal, cartCount } from "@/store/cart";
 import { formatMoney } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { Truck } from "lucide-react";
+
+/** Umbral de envío gratis (en centavos). */
+const FREE_SHIPPING = 30000;
 
 export function CartDrawer() {
-  const { items, isOpen, close, setQty, remove } = useCart();
+  const { items, isOpen, close, setQty, remove, clear } = useCart();
   const subtotal = cartSubtotal(items);
+  const count = cartCount(items);
   const currency = items[0]?.currency ?? "USD";
+  const remaining = Math.max(0, FREE_SHIPPING - subtotal);
+  const progress = Math.min(100, (subtotal / FREE_SHIPPING) * 100);
 
   // Bloquea el scroll del body cuando el drawer está abierto.
   useEffect(() => {
@@ -45,7 +52,14 @@ export function CartDrawer() {
             aria-label="Carrito de compras"
           >
             <header className="flex items-center justify-between border-b border-border px-6 py-5">
-              <h2 className="font-heading text-xl">Tu carrito</h2>
+              <h2 className="flex items-baseline gap-2 font-heading text-xl">
+                Tu carrito
+                {count > 0 && (
+                  <span className="text-sm font-normal text-muted tabular-nums">
+                    ({count})
+                  </span>
+                )}
+              </h2>
               <button
                 onClick={close}
                 aria-label="Cerrar"
@@ -55,19 +69,62 @@ export function CartDrawer() {
               </button>
             </header>
 
+            {items.length > 0 && (
+              <div className="border-b border-border px-6 py-4">
+                <p className="flex items-center gap-2 text-sm">
+                  <Truck className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                  {remaining > 0 ? (
+                    <span>
+                      Te faltan{" "}
+                      <span className="font-medium text-fg">
+                        {formatMoney(remaining, currency)}
+                      </span>{" "}
+                      para el envío gratis
+                    </span>
+                  ) : (
+                    <span className="font-medium text-primary">
+                      ¡Tenés envío gratis!
+                    </span>
+                  )}
+                </p>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-fg/10">
+                  <motion.div
+                    className="h-full rounded-full bg-primary"
+                    initial={false}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </div>
+              </div>
+            )}
+
             {items.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center"
+              >
                 <ShoppingBag className="h-10 w-10 text-muted" strokeWidth={1} />
                 <p className="text-muted">Tu carrito está vacío.</p>
                 <Button variant="outline" size="sm" onClick={close}>
                   Seguir explorando
                 </Button>
-              </div>
+              </motion.div>
             ) : (
               <>
                 <ul className="flex-1 divide-y divide-border overflow-y-auto px-6">
+                  <AnimatePresence initial={false}>
                   {items.map((item) => (
-                    <li key={item.key} className="flex gap-4 py-5">
+                    <motion.li
+                      key={item.key}
+                      layout
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex gap-4 py-5"
+                    >
                       <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-brand bg-fg/5">
                         {item.imageUrl && (
                           <Image
@@ -126,11 +183,20 @@ export function CartDrawer() {
                           </span>
                         </div>
                       </div>
-                    </li>
+                    </motion.li>
                   ))}
+                  </AnimatePresence>
                 </ul>
 
                 <footer className="border-t border-border px-6 py-5">
+                  <div className="mb-3 flex justify-end">
+                    <button
+                      onClick={clear}
+                      className="text-xs text-muted underline-offset-4 transition-colors hover:text-fg hover:underline"
+                    >
+                      Vaciar carrito
+                    </button>
+                  </div>
                   <div className="mb-1 flex items-center justify-between">
                     <span className="text-sm text-muted">Subtotal</span>
                     <span className="font-heading text-lg tabular-nums">

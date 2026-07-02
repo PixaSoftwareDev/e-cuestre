@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Jost, Inter } from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const jost = Jost({
+  variable: "--font-jost",
   subsets: ["latin"],
   display: "swap",
-  axes: ["opsz"],
 });
 
 const inter = Inter({
@@ -32,6 +31,14 @@ export const metadata: Metadata = {
     locale: "es_AR",
   },
   robots: { index: true, follow: true },
+  icons: {
+    // Silueta negra en navegador claro, blanca en navegador oscuro.
+    icon: [
+      { url: "/favicon-negro.png", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-blanco.png", media: "(prefers-color-scheme: dark)" },
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -42,8 +49,22 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+      className={`${jost.variable} ${inter.variable} h-full antialiased`}
+      // Extensiones de navegador (theme switchers) inyectan atributos en <html>
+      // antes de la hidratación. Evita el falso warning de hydration mismatch.
+      suppressHydrationWarning
     >
+      <head>
+        {/*
+          Aplica el modo claro/oscuro antes del primer paint para evitar flash.
+          Lee la preferencia guardada o, si no hay, la del sistema operativo.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

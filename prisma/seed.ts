@@ -4,9 +4,9 @@ import { THEME_PRESETS } from "../src/lib/theme";
 
 const prisma = new PrismaClient();
 
-// Imágenes demo estables (picsum). En producción se cargan desde el admin.
-const img = (seed: string, w = 900, h = 1125) =>
-  `https://picsum.photos/seed/${seed}/${w}/${h}`;
+// Imágenes demo locales (generadas por scripts/gen-placeholders.mjs), así la
+// demo no depende de servicios externos. En producción se cargan desde el admin.
+const img = (seed: string, _w = 900, _h = 1125) => `/seed/${seed}.jpg`;
 
 async function main() {
   console.log("🌱 Sembrando base de datos…");

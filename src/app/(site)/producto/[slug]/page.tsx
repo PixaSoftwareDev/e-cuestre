@@ -6,13 +6,19 @@ import {
   getActiveProductSlugs,
   getProducts,
   productFromPrice,
+  productStock,
 } from "@/lib/queries";
 import { formatMoney } from "@/lib/money";
 import { ProductGallery } from "@/components/site/product-gallery";
 import { ProductViewTracker } from "@/components/site/product-view-tracker";
+import { RecentTracker } from "@/components/site/recent-tracker";
+import { RecentlyViewed } from "@/components/site/recently-viewed";
 import { AddToCart } from "@/components/cart/add-to-cart";
+import { NotifyStock } from "@/components/site/notify-stock";
 import { BrandThemeProvider } from "@/components/site/brand-theme-provider";
 import { ProductCard } from "@/components/site/product-card";
+import { FavoriteButton } from "@/components/site/favorite-button";
+import { PaymentMethods } from "@/components/site/payment-methods";
 import { Badge } from "@/components/ui/badge";
 import type { BrandTheme } from "@/lib/theme";
 
@@ -48,6 +54,7 @@ export default async function ProductPage({
   if (!product || product.status !== "ACTIVE") notFound();
 
   const price = productFromPrice(product);
+  const soldOut = productStock(product) === 0;
   const related = (
     await getProducts({ brandSlug: product.brand.slug })
   )
@@ -60,6 +67,17 @@ export default async function ProductPage({
         productId={product.id}
         brandId={product.brandId}
         price={price}
+      />
+      <RecentTracker
+        item={{
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          brandName: product.brand.name,
+          imageUrl: product.images[0]?.url,
+          price,
+          currency: product.currency,
+        }}
       />
       <div className="container-page py-10 md:py-16">
         <nav className="mb-8 text-sm text-muted">
@@ -79,9 +97,23 @@ export default async function ProductPage({
             >
               {product.brand.name}
             </Link>
-            <h1 className="mt-2 font-heading text-3xl md:text-4xl">
-              {product.name}
-            </h1>
+            <div className="mt-2 flex items-start justify-between gap-4">
+              <h1 className="font-heading text-3xl md:text-4xl">
+                {product.name}
+              </h1>
+              <FavoriteButton
+                className="mt-1 shrink-0"
+                item={{
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  brandName: product.brand.name,
+                  imageUrl: product.images[0]?.url,
+                  price,
+                  currency: product.currency,
+                }}
+              />
+            </div>
 
             <div className="mt-4 flex items-baseline gap-3">
               <span className="text-2xl tabular-nums">
@@ -101,7 +133,7 @@ export default async function ProductPage({
               <p className="mt-6 text-fg/80">{product.description}</p>
             )}
 
-            <div className="mt-8">
+            <div className="mt-8 space-y-4">
               <AddToCart
                 product={{
                   productId: product.id,
@@ -118,25 +150,75 @@ export default async function ProductPage({
                   })),
                 }}
               />
+              {soldOut && (
+                <NotifyStock productId={product.id} productName={product.name} />
+              )}
             </div>
 
-            {(product.material || product.story) && (
-              <div className="mt-10 space-y-4 border-t border-border pt-8">
-                {product.material && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted">Material</span>
-                    <span>{product.material}</span>
-                  </div>
-                )}
-                {product.story && (
-                  <p className="text-sm leading-relaxed text-fg/70">
-                    {product.story}
-                  </p>
-                )}
+            {/* Medios de pago a mano */}
+            <div className="mt-5 flex items-center gap-3 text-xs text-muted">
+              <span>Pagá con</span>
+              <PaymentMethods size={24} />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Descripción y características ─────────────────────── */}
+        <section className="mt-16 grid gap-10 border-t border-border pt-12 md:mt-20 md:grid-cols-2 md:gap-16">
+          <div>
+            <h2 className="kicker mb-4 text-accent">Descripción</h2>
+            {product.description && (
+              <p className="leading-relaxed text-fg/80">{product.description}</p>
+            )}
+            {product.story && (
+              <p className="mt-4 leading-relaxed text-fg/70">{product.story}</p>
+            )}
+            {!product.description && !product.story && (
+              <p className="text-muted">Sin descripción disponible.</p>
+            )}
+          </div>
+
+          <div>
+            <h2 className="kicker mb-4 text-accent">Características</h2>
+            <dl className="divide-y divide-border text-sm">
+              {product.material && (
+                <div className="flex justify-between gap-4 py-3">
+                  <dt className="text-muted">Material</dt>
+                  <dd className="text-right">{product.material}</dd>
+                </div>
+              )}
+              <div className="flex justify-between gap-4 py-3">
+                <dt className="text-muted">Marca</dt>
+                <dd className="text-right">{product.brand.name}</dd>
+              </div>
+              {product.category && (
+                <div className="flex justify-between gap-4 py-3">
+                  <dt className="text-muted">Categoría</dt>
+                  <dd className="text-right">{product.category.name}</dd>
+                </div>
+              )}
+              <div className="flex justify-between gap-4 py-3">
+                <dt className="text-muted">Opciones</dt>
+                <dd className="text-right">
+                  {product.variants.map((v) => v.name).join(" · ")}
+                </dd>
+              </div>
+            </dl>
+
+            {product.tags.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {product.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full border border-border px-3 py-1 text-xs text-muted"
+                  >
+                    {t}
+                  </span>
+                ))}
               </div>
             )}
           </div>
-        </div>
+        </section>
 
         {related.length > 0 && (
           <section className="mt-24">
@@ -151,6 +233,8 @@ export default async function ProductPage({
           </section>
         )}
       </div>
+
+      <RecentlyViewed excludeId={product.id} />
     </BrandThemeProvider>
   );
 }

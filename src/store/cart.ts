@@ -50,7 +50,6 @@ export const useCart = create<CartState>()(
               items: state.items.map((i) =>
                 i.key === key ? { ...i, quantity: nextQty } : i,
               ),
-              isOpen: true,
             };
           }
           return {
@@ -58,7 +57,6 @@ export const useCart = create<CartState>()(
               ...state.items,
               { ...item, key, quantity: Math.min(qty, item.maxStock || 99) },
             ],
-            isOpen: true,
           };
         }),
       remove: (key) =>

@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { motion } from "motion/react";
+import { Check, Lock, ShieldCheck, Truck } from "lucide-react";
 import {
   PayPalScriptProvider,
   PayPalButtons,
@@ -10,6 +13,8 @@ import {
 import { useCart, cartSubtotal } from "@/store/cart";
 import { formatMoney } from "@/lib/money";
 import { Input, Label } from "@/components/ui/input";
+import { PaymentMethods } from "@/components/site/payment-methods";
+import { cn } from "@/lib/utils";
 import { track } from "@/lib/track";
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
@@ -65,8 +70,20 @@ export default function CheckoutPage() {
   return (
     <div className="container-page grid gap-12 py-12 md:grid-cols-2 md:py-16">
       {/* Datos + pago */}
-      <div className="order-2 md:order-1">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="order-2 md:order-1"
+      >
         <h1 className="font-heading text-3xl">Checkout</h1>
+
+        {/* Stepper */}
+        <ol className="mt-6 flex items-center gap-3 text-sm">
+          <Step n={1} label="Tus datos" done={formValid} active={!formValid} />
+          <span className="h-px w-8 bg-border" />
+          <Step n={2} label="Pago" done={false} active={formValid} />
+        </ol>
 
         <div className="mt-8 space-y-4">
           <h2 className="kicker text-accent">Datos de contacto</h2>
@@ -103,9 +120,12 @@ export default function CheckoutPage() {
         </div>
 
         <div className="mt-10">
-          <h2 className="kicker mb-4 text-accent">Pago</h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="kicker text-accent">Pago</h2>
+            <PaymentMethods size={26} />
+          </div>
           {error && (
-            <p className="mb-4 rounded-brand bg-red-500/10 px-4 py-3 text-sm text-red-700">
+            <p className="mb-4 rounded-brand bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">
               {error}
             </p>
           )}
@@ -203,19 +223,44 @@ export default function CheckoutPage() {
               </div>
             </>
           )}
+
+          {/* Confianza */}
+          <div className="mt-6 flex items-center gap-2 text-xs text-muted">
+            <Lock className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Pago cifrado. No guardamos los datos de tu tarjeta.
+          </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Resumen */}
-      <aside className="order-1 h-fit rounded-brand border border-border bg-card p-6 md:order-2 md:sticky md:top-28">
+      <motion.aside
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+        className="order-1 h-fit rounded-brand border border-border bg-card p-6 md:order-2 md:sticky md:top-28"
+      >
         <h2 className="font-heading text-xl">Tu pedido</h2>
-        <ul className="mt-6 divide-y divide-border">
+        <ul className="mt-6 space-y-4">
           {items.map((i) => (
-            <li key={i.key} className="flex justify-between gap-4 py-3 text-sm">
-              <span>
-                {i.quantity}× {i.name}
-                {i.variantName ? ` · ${i.variantName}` : ""}
-              </span>
+            <li key={i.key} className="flex items-center gap-3 text-sm">
+              <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-brand bg-fg/5">
+                {i.imageUrl && (
+                  <Image
+                    src={i.imageUrl}
+                    alt={i.name}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{i.name}</p>
+                <p className="text-xs text-muted">
+                  {i.quantity} u.
+                  {i.variantName ? ` · ${i.variantName}` : ""}
+                </p>
+              </div>
               <span className="tabular-nums">
                 {formatMoney(i.unitPrice * i.quantity, i.currency)}
               </span>
@@ -238,7 +283,56 @@ export default function CheckoutPage() {
             </span>
           </div>
         </div>
-      </aside>
+
+        <div className="mt-6 space-y-2 border-t border-border pt-4 text-xs text-muted">
+          <p className="flex items-center gap-2">
+            <Truck className="h-4 w-4" strokeWidth={1.5} /> Envío con seguimiento
+            a todo el país.
+          </p>
+          <p className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4" strokeWidth={1.5} /> Compra protegida
+            con PayPal.
+          </p>
+        </div>
+      </motion.aside>
     </div>
+  );
+}
+
+/** Paso del indicador de progreso del checkout. */
+function Step({
+  n,
+  label,
+  done,
+  active,
+}: {
+  n: number;
+  label: string;
+  done: boolean;
+  active: boolean;
+}) {
+  return (
+    <li className="flex items-center gap-2">
+      <span
+        className={cn(
+          "flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-colors",
+          done
+            ? "bg-primary text-primary-fg"
+            : active
+              ? "border border-primary text-primary"
+              : "border border-border text-muted",
+        )}
+      >
+        {done ? <Check className="h-3.5 w-3.5" /> : n}
+      </span>
+      <span
+        className={cn(
+          "transition-colors",
+          active || done ? "text-fg" : "text-muted",
+        )}
+      >
+        {label}
+      </span>
+    </li>
   );
 }

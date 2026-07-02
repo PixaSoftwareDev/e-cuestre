@@ -85,7 +85,7 @@ export default async function AdminProductsPage() {
                     </Badge>
                   </td>
                   <td className="p-4 text-right tabular-nums">
-                    <span className={stock <= 3 ? "text-red-600" : ""}>{stock}</span>
+                    <span className={stock <= 3 ? "text-red-600 dark:text-red-400" : ""}>{stock}</span>
                   </td>
                   <td className="p-4 text-right tabular-nums">
                     {formatMoney(p.basePrice, p.currency)}

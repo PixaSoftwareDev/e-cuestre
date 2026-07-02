@@ -4,7 +4,8 @@ import { ArrowRight } from "lucide-react";
 import { getBrands, getFeaturedProducts } from "@/lib/queries";
 import { ProductCard } from "@/components/site/product-card";
 import { Reveal } from "@/components/site/reveal";
-import { Button } from "@/components/ui/button";
+import { SiteHero } from "@/components/site/site-hero";
+import { RecentlyViewed } from "@/components/site/recently-viewed";
 
 export default async function HomePage() {
   const [brands, featured] = await Promise.all([
@@ -17,48 +18,11 @@ export default async function HomePage() {
   return (
     <div>
       {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative flex min-h-[88vh] items-end overflow-hidden">
-        {hero?.heroImageUrl ? (
-          <Image
-            src={hero.heroImageUrl}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-primary" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="container-page relative z-10 pb-20 text-white animate-rise">
-          <p className="kicker mb-4 text-white/80">Temporada 2026 · Polo & Vida Ecuestre</p>
-          <h1 className="max-w-3xl font-heading text-4xl leading-[1.05] md:text-6xl lg:text-7xl">
-            El oficio detrás de cada pieza.
-          </h1>
-          <p className="mt-5 max-w-xl text-base text-white/85 md:text-lg">
-            Equipamiento y objetos de primera, hechos con materiales nobles para
-            quienes entienden de calidad. Sobrio, fino, para toda la vida.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg" variant="accent">
-              <Link href="/productos">
-                Explorar la colección <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            {hero && (
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-white/40 text-white hover:bg-white/10"
-              >
-                <Link href={`/marca/${hero.slug}`}>Conocer {hero.name}</Link>
-              </Button>
-            )}
-          </div>
-        </div>
-      </section>
+      <SiteHero
+        imageUrl={hero?.heroImageUrl}
+        brandSlug={hero?.slug}
+        brandName={hero?.name}
+      />
 
       {/* ── DESTACADOS ───────────────────────────────────── */}
       {featured.length > 0 && (
@@ -135,6 +99,9 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── SEGUÍ EXPLORANDO (personalizado) ─────────────── */}
+      <RecentlyViewed title="Seguí explorando" />
 
       {/* ── VALORES ──────────────────────────────────────── */}
       <section className="container-page grid gap-10 py-20 md:grid-cols-3 md:py-28">

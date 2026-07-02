@@ -264,7 +264,7 @@ export function BrandForm({ initial }: { initial?: BrandFormInitial }) {
         )}
 
         {error && (
-          <p className="rounded-brand bg-red-500/10 px-4 py-3 text-sm text-red-700">{error}</p>
+          <p className="rounded-brand bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</p>
         )}
 
         <div className="flex flex-col gap-2">

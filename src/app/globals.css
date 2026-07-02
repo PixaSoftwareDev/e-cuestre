@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Habilita el variant `dark:` usando nuestra clase .dark en <html>
+   (por defecto Tailwind v4 usa prefers-color-scheme). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
   Sistema de diseño Ecuestre.
   Los tokens definidos acá generan utilidades de Tailwind (bg-primary, text-fg,
@@ -21,7 +25,7 @@
   --radius-brand: 0.25rem;
 
   /* Tipografías (se cargan en layout.tsx con next/font) */
-  --font-heading: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-heading: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   /* Sombras suaves y premium */
@@ -30,6 +34,28 @@
 
   /* Easing para transiciones suaves */
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+  Modo oscuro global. Al poner la clase `dark` en <html>, se redefinen los
+  tokens por defecto (paleta ecuestre en oscuro). Va fuera de @layer para que
+  gane a las variables por defecto de Tailwind (@theme) sin depender del orden
+  de capas. Las secciones con tema de marca (BrandThemeProvider) inyectan sus
+  propias variables inline y mantienen su identidad; el resto de la app (home,
+  navbar, footer, catálogo) responde a este toggle.
+*/
+html.dark {
+  --color-bg: #141310;
+  --color-fg: #f1ece2;
+  --color-primary: #86ab90;
+  --color-primary-fg: #10120e;
+  --color-accent: #c8a96a;
+  --color-card: #1c1b17;
+  --color-muted: #9a948b;
+  --color-border: #2c2a25;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lift: 0 4px 12px rgba(0, 0, 0, 0.4), 0 24px 48px rgba(0, 0, 0, 0.5);
 }
 
 @layer base {
@@ -48,6 +74,9 @@
     color: var(--color-fg);
     font-family: var(--font-body);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Transición suave al alternar claro/oscuro */
+    transition: background-color 0.4s var(--ease-smooth),
+      color 0.4s var(--ease-smooth);
   }
 
   h1, h2, h3, h4, h5 {
@@ -77,13 +106,18 @@
   /* Contenedor centrado con padding responsivo */
   .container-page {
     width: 100%;
-    max-width: 80rem;
+    max-width: 100rem; /* 1600px — más ancho para monitores grandes */
     margin-inline: auto;
     padding-inline: 1.25rem;
   }
   @media (min-width: 768px) {
     .container-page {
       padding-inline: 2rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .container-page {
+      padding-inline: 3rem;
     }
   }
 
@@ -108,5 +142,122 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /*
+    Brillo que barre al pasar el mouse (sheen). Se pinta como background-image
+    encima del color de fondo del botón, sin elementos extra (compatible con
+    botones asChild/Slot). Sutil y premium.
+  */
+  .sheen {
+    background-image: linear-gradient(
+      110deg,
+      transparent 25%,
+      color-mix(in srgb, #fff 16%, transparent) 48%,
+      transparent 62%
+    );
+    background-size: 220% 100%;
+    background-position: 210% 0;
+    background-repeat: no-repeat;
+    transition:
+      background-position 0.9s var(--ease-smooth),
+      filter 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.3s ease;
+  }
+  .sheen:hover {
+    background-position: -40% 0;
+  }
+
+  /* Micro-elevación al hover, para tarjetas y superficies interactivas. */
+  .hover-lift {
+    transition:
+      transform 0.5s var(--ease-smooth),
+      box-shadow 0.5s var(--ease-smooth);
+    will-change: transform;
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* Placeholder de carga con brillo en movimiento (skeleton). */
+  .skeleton {
+    background: linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--color-muted) 12%, transparent) 30%,
+      color-mix(in srgb, var(--color-muted) 22%, transparent) 50%,
+      color-mix(in srgb, var(--color-muted) 12%, transparent) 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  /*
+    Botón de ícono del navbar: hover circular suave + el ícono vira al color de
+    marca, con un leve scale al presionar. Reemplaza el "cuadrado gris".
+    No define display/tamaño (eso lo pone cada botón con utilidades Tailwind).
+  */
+  .nav-icon {
+    border-radius: 9999px;
+    color: var(--color-fg);
+    transition:
+      background-color 0.25s var(--ease-smooth),
+      color 0.25s var(--ease-smooth),
+      transform 0.25s var(--ease-smooth);
+  }
+  .nav-icon:hover {
+    background-color: color-mix(in srgb, var(--color-fg) 7%, transparent);
+    color: var(--color-primary);
+  }
+  .nav-icon:active {
+    transform: scale(0.9);
+  }
+
+  /* Navbar en modo overlay (transparente sobre el hero): íconos en blanco. */
+  .nav-overlay .nav-icon {
+    color: #fff;
+  }
+  .nav-overlay .nav-icon:hover {
+    background-color: color-mix(in srgb, #fff 15%, transparent);
+    color: #fff;
+  }
+
+  /* Indicador de scroll del hero: la línea que baja en loop. */
+  @keyframes scroll-cue {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    35%,
+    65% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+  .animate-scroll-cue {
+    animation: scroll-cue 2s var(--ease-smooth) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheen,
+  .hover-lift,
+  .skeleton,
+  .animate-scroll-cue,
+  .animate-rise {
+    animation: none !important;
+    transition: none !important;
   }
 }

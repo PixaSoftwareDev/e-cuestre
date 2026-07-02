@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: false,
+  // Permite ver la app en dev a través de un túnel (cloudflared/ngrok).
+  allowedDevOrigins: ["*.trycloudflare.com", "*.ngrok-free.app", "*.loca.lt"],
   // Salida optimizada para contenedor Docker (server mínimo).
   output: "standalone",
   // Fija la raíz del proyecto (hay lockfiles en carpetas superiores).

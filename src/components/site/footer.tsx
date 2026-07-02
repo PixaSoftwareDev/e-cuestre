@@ -14,11 +14,11 @@ export function Footer({
 }) {
   const year = 2026;
   return (
-    <footer className="mt-32 border-t border-border bg-card">
-      <div className="container-page py-16 md:py-20">
-        <div className="grid gap-12 md:grid-cols-[1.6fr_1fr_1fr_1.4fr]">
+    <footer className="mt-20 border-t border-border bg-card md:mt-32">
+      <div className="container-page py-12 md:py-20">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-[1.6fr_1fr_1fr_1.4fr] md:gap-12">
           {/* Marca */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <Logo imgClassName="h-9" textClassName="text-2xl" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
               Equipamiento y objetos de primera para el mundo del polo y la vida
@@ -64,7 +64,7 @@ export function Footer({
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <p className="kicker text-muted">Novedades</p>
             <p className="mt-4 text-sm text-muted">
               Sumate para conocer lanzamientos y ediciones limitadas.

@@ -17,7 +17,7 @@ const LANGS: Lang[] = [
  * Selector de idioma (widget). Por ahora solo guarda la preferencia y actualiza
  * el atributo lang del <html>; NO traduce el contenido todavía.
  */
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ up = false }: { up?: boolean }) {
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState<Lang>(LANGS[0]);
   const ref = useRef<HTMLDivElement>(null);
@@ -86,7 +86,10 @@ export function LanguageSwitcher() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-0 z-50 mt-2 min-w-44 overflow-hidden rounded-brand border border-border bg-bg p-1 shadow-[var(--shadow-lift)]"
+            className={cn(
+              "absolute right-0 z-50 min-w-44 overflow-hidden rounded-brand border border-border bg-bg p-1 shadow-[var(--shadow-lift)]",
+              up ? "bottom-full mb-2" : "mt-2",
+            )}
           >
             {LANGS.map((l) => {
               const active = l.code === current.code;

@@ -222,13 +222,19 @@ html.dark {
     transform: scale(0.9);
   }
 
-  /* Navbar en modo overlay (transparente sobre el hero): íconos en blanco. */
+  /* Navbar en modo overlay (transparente sobre el hero): íconos en blanco,
+     con una sombra sutil para que se lean sobre imágenes claras. */
   .nav-overlay .nav-icon {
     color: #fff;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
   }
   .nav-overlay .nav-icon:hover {
     background-color: color-mix(in srgb, #fff 15%, transparent);
     color: #fff;
+  }
+  /* Logo y texto del navbar overlay también con sombra para legibilidad. */
+  .nav-overlay a[aria-label] {
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.45));
   }
 
   /* Indicador de scroll del hero: la línea que baja en loop. */

@@ -9,12 +9,14 @@ import { formatMoney } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { Truck } from "lucide-react";
+import { useT } from "@/components/i18n-provider";
 
 /** Umbral de envío gratis (en centavos). */
 const FREE_SHIPPING = 30000;
 
 export function CartDrawer() {
   const { items, isOpen, close, setQty, remove, clear } = useCart();
+  const t = useT();
   const subtotal = cartSubtotal(items);
   const count = cartCount(items);
   const currency = items[0]?.currency ?? "USD";
@@ -53,7 +55,7 @@ export function CartDrawer() {
           >
             <header className="flex items-center justify-between border-b border-border px-6 py-5">
               <h2 className="flex items-baseline gap-2 font-heading text-xl">
-                Tu carrito
+                {t("cart.title")}
                 {count > 0 && (
                   <span className="text-sm font-normal text-muted tabular-nums">
                     ({count})
@@ -75,15 +77,15 @@ export function CartDrawer() {
                   <Truck className="h-4 w-4 text-primary" strokeWidth={1.5} />
                   {remaining > 0 ? (
                     <span>
-                      Te faltan{" "}
+                      {t("cart.remainingA")}{" "}
                       <span className="font-medium text-fg">
                         {formatMoney(remaining, currency)}
                       </span>{" "}
-                      para el envío gratis
+                      {t("cart.remainingB")}
                     </span>
                   ) : (
                     <span className="font-medium text-primary">
-                      ¡Tenés envío gratis!
+                      {t("cart.freeShipping")}
                     </span>
                   )}
                 </p>
@@ -106,9 +108,9 @@ export function CartDrawer() {
                 className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center"
               >
                 <ShoppingBag className="h-10 w-10 text-muted" strokeWidth={1} />
-                <p className="text-muted">Tu carrito está vacío.</p>
+                <p className="text-muted">{t("cart.empty")}</p>
                 <Button variant="outline" size="sm" onClick={close}>
-                  Seguir explorando
+                  {t("cart.keepBrowsing")}
                 </Button>
               </motion.div>
             ) : (
@@ -194,21 +196,21 @@ export function CartDrawer() {
                       onClick={clear}
                       className="text-xs text-muted underline-offset-4 transition-colors hover:text-fg hover:underline"
                     >
-                      Vaciar carrito
+                      {t("cart.clear")}
                     </button>
                   </div>
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm text-muted">Subtotal</span>
+                    <span className="text-sm text-muted">{t("cart.subtotal")}</span>
                     <span className="font-heading text-lg tabular-nums">
                       {formatMoney(subtotal, currency)}
                     </span>
                   </div>
                   <p className="mb-4 text-xs text-muted">
-                    Envío e impuestos calculados en el checkout.
+                    {t("cart.shippingNote")}
                   </p>
                   <Button asChild size="lg" className="w-full">
                     <Link href="/checkout" onClick={close}>
-                      Finalizar compra
+                      {t("cart.checkout")}
                     </Link>
                   </Button>
                 </footer>

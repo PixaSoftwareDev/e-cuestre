@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Jost, Inter } from "next/font/google";
+import { getLocale } from "@/lib/i18n/server";
+import { I18nProvider } from "@/components/i18n-provider";
 import "./globals.css";
 
 const jost = Jost({
@@ -41,14 +43,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
     <html
-      lang="es"
+      lang={locale}
       className={`${jost.variable} ${inter.variable} h-full antialiased`}
       // Extensiones de navegador (theme switchers) inyectan atributos en <html>
       // antes de la hidratación. Evita el falso warning de hydration mismatch.
@@ -65,7 +68,9 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <I18nProvider locale={locale}>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

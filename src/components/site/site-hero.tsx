@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/components/i18n-provider";
 
 export function SiteHero({
   imageUrl,
@@ -18,6 +19,7 @@ export function SiteHero({
 }) {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  const t = useT();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -73,25 +75,24 @@ export function SiteHero({
         className="container-page relative z-10 pb-24 text-white md:pb-28"
       >
         <motion.p variants={item} className="kicker mb-4 text-white/75">
-          Temporada 2026 · Polo &amp; Vida Ecuestre
+          {t("home.hero.kicker")}
         </motion.p>
         <motion.h1
           variants={item}
           className="max-w-3xl font-heading text-4xl leading-[1.03] md:text-6xl lg:text-7xl"
         >
-          El oficio detrás de cada pieza.
+          {t("home.hero.title")}
         </motion.h1>
         <motion.p
           variants={item}
           className="mt-5 max-w-xl text-base text-white/80 md:text-lg"
         >
-          Equipamiento y objetos de primera, hechos con materiales nobles para
-          quienes entienden de calidad. Sobrio, fino, para toda la vida.
+          {t("home.hero.subtitle")}
         </motion.p>
         <motion.div variants={item} className="mt-9 flex flex-wrap gap-3">
           <Button asChild size="lg" variant="accent">
             <Link href="/productos">
-              Explorar la colección <ArrowRight className="h-4 w-4" />
+              {t("home.hero.cta")} <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           {brandSlug && (
@@ -101,7 +102,9 @@ export function SiteHero({
               variant="outline"
               className="border-white/40 text-white hover:bg-white/10 hover:border-white/60"
             >
-              <Link href={`/marca/${brandSlug}`}>Conocer {brandName}</Link>
+              <Link href={`/marca/${brandSlug}`}>
+                {t("home.hero.brandCta")} {brandName}
+              </Link>
             </Button>
           )}
         </motion.div>

@@ -7,6 +7,7 @@ import { useCart } from "@/store/cart";
 import { useToast } from "@/store/toast";
 import { useFly } from "@/store/fly";
 import { track } from "@/lib/track";
+import { useT } from "@/components/i18n-provider";
 
 export type QuickAddVariant = {
   id: string;
@@ -35,6 +36,7 @@ export function QuickAdd({ product }: { product: QuickAddData }) {
   const add = useCart((s) => s.add);
   const pushToast = useToast((s) => s.push);
   const fly = useFly((s) => s.trigger);
+  const t = useT();
   const [added, setAdded] = useState(false);
 
   const inStock = product.variants.filter((v) => v.stock > 0);
@@ -85,7 +87,7 @@ export function QuickAdd({ product }: { product: QuickAddData }) {
     return (
       <Link href={`/producto/${product.slug}`} className={base}>
         <SlidersHorizontal className="h-4 w-4" strokeWidth={1.5} />
-        Elegir opciones
+        {t("cart.chooseOptions")}
       </Link>
     );
   }
@@ -94,11 +96,11 @@ export function QuickAdd({ product }: { product: QuickAddData }) {
     <button type="button" onClick={handleAdd} className={base}>
       {added ? (
         <>
-          <Check className="h-4 w-4" /> Agregado
+          <Check className="h-4 w-4" /> {t("cart.added")}
         </>
       ) : (
         <>
-          <Plus className="h-4 w-4" strokeWidth={1.5} /> Agregar al carrito
+          <Plus className="h-4 w-4" strokeWidth={1.5} /> {t("cart.add")}
         </>
       )}
     </button>

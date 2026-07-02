@@ -6,14 +6,22 @@ import { ProductCard } from "@/components/site/product-card";
 import { Reveal } from "@/components/site/reveal";
 import { SiteHero } from "@/components/site/site-hero";
 import { RecentlyViewed } from "@/components/site/recently-viewed";
+import { getT } from "@/lib/i18n/server";
 
 export default async function HomePage() {
-  const [brands, featured] = await Promise.all([
+  const [brands, featured, t] = await Promise.all([
     getBrands(),
     getFeaturedProducts(8),
+    getT(),
   ]);
 
   const hero = brands.find((b) => b.heroImageUrl) ?? brands[0];
+
+  const values = [
+    { t: t("home.values.materials.title"), d: t("home.values.materials.desc") },
+    { t: t("home.values.lasting.title"), d: t("home.values.lasting.desc") },
+    { t: t("home.values.secure.title"), d: t("home.values.secure.desc") },
+  ];
 
   return (
     <div>
@@ -30,16 +38,16 @@ export default async function HomePage() {
           <Reveal>
             <div className="mb-10 flex items-end justify-between">
               <div>
-                <p className="kicker text-accent">Selección</p>
+                <p className="kicker text-accent">{t("home.featured.kicker")}</p>
                 <h2 className="mt-2 font-heading text-3xl md:text-4xl">
-                  Piezas destacadas
+                  {t("home.featured.title")}
                 </h2>
               </div>
               <Link
                 href="/productos"
                 className="hidden items-center gap-1 text-sm hover:text-primary md:inline-flex"
               >
-                Ver todo <ArrowRight className="h-4 w-4" />
+                {t("home.viewAll")} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </Reveal>
@@ -58,13 +66,12 @@ export default async function HomePage() {
         <section className="bg-card py-20 md:py-28">
           <div className="container-page">
             <Reveal>
-              <p className="kicker text-accent">Nuestras casas</p>
+              <p className="kicker text-accent">{t("home.brands.kicker")}</p>
               <h2 className="mt-2 max-w-2xl font-heading text-3xl md:text-4xl">
-                Un diseño distinto para cada mundo.
+                {t("home.brands.title")}
               </h2>
               <p className="mt-3 max-w-xl text-muted">
-                Cada marca tiene su propia identidad visual. La experiencia se
-                adapta al rubro sin perder la elegancia.
+                {t("home.brands.subtitle")}
               </p>
             </Reveal>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -101,24 +108,11 @@ export default async function HomePage() {
       )}
 
       {/* ── SEGUÍ EXPLORANDO (personalizado) ─────────────── */}
-      <RecentlyViewed title="Seguí explorando" />
+      <RecentlyViewed title={t("home.keepExploring")} />
 
       {/* ── VALORES ──────────────────────────────────────── */}
       <section className="container-page grid gap-10 py-20 md:grid-cols-3 md:py-28">
-        {[
-          {
-            t: "Materiales nobles",
-            d: "Cueros vegetales, metales macizos y textiles seleccionados. Nada superfluo.",
-          },
-          {
-            t: "Hecho para durar",
-            d: "Piezas pensadas para acompañar toda una vida sobre el caballo y fuera de él.",
-          },
-          {
-            t: "Compra segura",
-            d: "Pagos protegidos con PayPal y envíos con seguimiento a todo el país.",
-          },
-        ].map((v, i) => (
+        {values.map((v, i) => (
           <Reveal key={v.t} delay={i * 0.08}>
             <div>
               <div className="mb-4 h-px w-12 bg-accent" />

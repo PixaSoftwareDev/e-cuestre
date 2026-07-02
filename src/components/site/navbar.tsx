@@ -13,6 +13,7 @@ import { FavoritesNavButton } from "@/components/site/favorites-nav-button";
 import { LanguageSwitcher } from "@/components/site/language-switcher";
 import { MenuToggle } from "@/components/site/menu-toggle";
 import { useSearch } from "@/store/search";
+import { useT } from "@/components/i18n-provider";
 
 type NavBrand = { slug: string; name: string };
 
@@ -26,6 +27,7 @@ export function Navbar({
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const openSearch = useSearch((s) => s.setOpen);
+  const t = useT();
 
   // En páginas con hero (home y marca) el navbar flota transparente encima;
   // en el resto es una barra sólida. No es fijo: se va con el scroll.
@@ -61,7 +63,7 @@ export function Navbar({
           />
           <div className="hidden items-center gap-6 md:flex">
             <Link href="/productos" className={linkClass}>
-              Tienda
+              {t("nav.store")}
             </Link>
             {brands.slice(0, 4).map((b) => (
               <Link key={b.slug} href={`/marca/${b.slug}`} className={linkClass}>
@@ -120,7 +122,7 @@ export function Navbar({
         <div className="flex items-center gap-1">
           <button
             onClick={() => openSearch(true)}
-            aria-label="Buscar"
+            aria-label={t("nav.search")}
             className="nav-icon inline-flex h-11 w-11 items-center justify-center"
           >
             <Search className="h-5 w-5" strokeWidth={1.5} />
@@ -146,9 +148,9 @@ export function Navbar({
           >
             <div className="container-page flex flex-1 flex-col gap-1 overflow-y-auto pt-2">
               {[
-                { href: "/productos", label: "Tienda" },
+                { href: "/productos", label: t("nav.store") },
                 ...brands.map((b) => ({ href: `/marca/${b.slug}`, label: b.name })),
-                { href: "/favoritos", label: "Favoritos" },
+                { href: "/favoritos", label: t("nav.favorites") },
               ].map((item, i) => (
                 <motion.div
                   key={item.href}
@@ -178,7 +180,7 @@ export function Navbar({
               transition={{ delay: 0.3, duration: 0.4 }}
               className="container-page flex items-center justify-between border-t border-border py-4"
             >
-              <span className="text-sm text-muted">Preferencias</span>
+              <span className="text-sm text-muted">{t("nav.preferences")}</span>
               <div className="flex items-center gap-1">
                 <ThemeToggle />
                 <LanguageSwitcher up />

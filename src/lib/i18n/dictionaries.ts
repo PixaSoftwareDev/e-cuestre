@@ -1,0 +1,262 @@
+/**
+ * Diccionarios de traducción de la INTERFAZ (no del contenido de productos,
+ * que viene de la base de datos). Claves planas con notación por punto.
+ */
+
+export type Locale = "es" | "en" | "de";
+export const LOCALES: Locale[] = ["es", "en", "de"];
+export const DEFAULT_LOCALE: Locale = "es";
+
+type Dict = Record<string, string>;
+
+const es: Dict = {
+  // Navbar
+  "nav.store": "Tienda",
+  "nav.search": "Buscar",
+  "nav.favorites": "Favoritos",
+  "nav.preferences": "Preferencias",
+  // Home
+  "home.hero.kicker": "Temporada 2026 · Polo & Vida Ecuestre",
+  "home.hero.title": "El oficio detrás de cada pieza.",
+  "home.hero.subtitle":
+    "Equipamiento y objetos de primera, hechos con materiales nobles para quienes entienden de calidad. Sobrio, fino, para toda la vida.",
+  "home.hero.cta": "Explorar la colección",
+  "home.hero.brandCta": "Conocer",
+  "home.featured.kicker": "Selección",
+  "home.featured.title": "Piezas destacadas",
+  "home.viewAll": "Ver todo",
+  "home.brands.kicker": "Nuestras casas",
+  "home.brands.title": "Un diseño distinto para cada mundo.",
+  "home.brands.subtitle":
+    "Cada marca tiene su propia identidad visual. La experiencia se adapta al rubro sin perder la elegancia.",
+  "home.values.materials.title": "Materiales nobles",
+  "home.values.materials.desc":
+    "Cueros vegetales, metales macizos y textiles seleccionados. Nada superfluo.",
+  "home.values.lasting.title": "Hecho para durar",
+  "home.values.lasting.desc":
+    "Piezas pensadas para acompañar toda una vida sobre el caballo y fuera de él.",
+  "home.values.secure.title": "Compra segura",
+  "home.values.secure.desc":
+    "Pagos protegidos y envíos con seguimiento a todo el país.",
+  "home.keepExploring": "Seguí explorando",
+  // Producto / catálogo
+  "shop.kicker": "Catálogo",
+  "shop.title": "La tienda",
+  "product.recentlyViewed": "Vistos recientemente",
+  "product.description": "Descripción",
+  "product.features": "Características",
+  "product.material": "Material",
+  "product.brand": "Marca",
+  "product.category": "Categoría",
+  "product.options": "Opciones",
+  "product.payWith": "Pagá con",
+  "product.related": "También de",
+  // Acciones de carrito
+  "cart.add": "Agregar al carrito",
+  "cart.added": "Agregado",
+  "cart.chooseOptions": "Elegir opciones",
+  "cart.soldOut": "Agotado",
+  "cart.notify": "Avisame cuando vuelva",
+  "cart.favorite": "Favorito",
+  "cart.inFavorites": "En favoritos",
+  "cart.title": "Tu carrito",
+  "cart.empty": "Tu carrito está vacío.",
+  "cart.keepBrowsing": "Seguir explorando",
+  "cart.subtotal": "Subtotal",
+  "cart.checkout": "Finalizar compra",
+  "cart.clear": "Vaciar carrito",
+  "cart.freeShipping": "¡Tenés envío gratis!",
+  "cart.remainingA": "Te faltan",
+  "cart.remainingB": "para el envío gratis",
+  "cart.shippingNote": "Envío e impuestos calculados en el checkout.",
+  // Búsqueda
+  "search.placeholder": "Buscar productos, marcas…",
+  "search.empty": "No encontramos resultados.",
+  "search.hint": "Escribí para buscar en el catálogo.",
+  // Favoritos
+  "fav.title": "Favoritos",
+  "fav.kicker": "Tu selección",
+  "fav.empty": "Todavía no guardaste ningún favorito.",
+  "fav.explore": "Explorar la tienda",
+  // Footer
+  "footer.tagline":
+    "Equipamiento y objetos de primera para el mundo del polo y la vida ecuestre. Materiales nobles, oficio y diseño atemporal.",
+  "footer.brands": "Marcas",
+  "footer.help": "Ayuda",
+  "footer.catalog": "Catálogo",
+  "footer.cart": "Carrito",
+  "footer.shipping": "Envíos y devoluciones",
+  "footer.newsletter": "Novedades",
+  "footer.newsletterDesc": "Sumate para conocer lanzamientos y ediciones limitadas.",
+  "footer.emailPlaceholder": "Tu correo",
+  "footer.rights": "Todos los derechos reservados.",
+  "footer.securePayments": "Pagos seguros",
+  // Común
+  "common.loading": "Cargando…",
+};
+
+const en: Dict = {
+  "nav.store": "Store",
+  "nav.search": "Search",
+  "nav.favorites": "Favorites",
+  "nav.preferences": "Preferences",
+  "home.hero.kicker": "2026 Season · Polo & Equestrian Life",
+  "home.hero.title": "The craft behind every piece.",
+  "home.hero.subtitle":
+    "First-class equipment and objects, made with noble materials for those who value quality. Understated, refined, for a lifetime.",
+  "home.hero.cta": "Explore the collection",
+  "home.hero.brandCta": "Discover",
+  "home.featured.kicker": "Selection",
+  "home.featured.title": "Featured pieces",
+  "home.viewAll": "View all",
+  "home.brands.kicker": "Our houses",
+  "home.brands.title": "A distinct design for every world.",
+  "home.brands.subtitle":
+    "Each brand has its own visual identity. The experience adapts to the category without losing elegance.",
+  "home.values.materials.title": "Noble materials",
+  "home.values.materials.desc":
+    "Vegetable-tanned leathers, solid metals and selected textiles. Nothing superfluous.",
+  "home.values.lasting.title": "Built to last",
+  "home.values.lasting.desc":
+    "Pieces designed to accompany a lifetime, on and off the horse.",
+  "home.values.secure.title": "Secure checkout",
+  "home.values.secure.desc":
+    "Protected payments and tracked shipping nationwide.",
+  "home.keepExploring": "Keep exploring",
+  "shop.kicker": "Catalog",
+  "shop.title": "The store",
+  "product.recentlyViewed": "Recently viewed",
+  "product.description": "Description",
+  "product.features": "Details",
+  "product.material": "Material",
+  "product.brand": "Brand",
+  "product.category": "Category",
+  "product.options": "Options",
+  "product.payWith": "Pay with",
+  "product.related": "More from",
+  "cart.add": "Add to cart",
+  "cart.added": "Added",
+  "cart.chooseOptions": "Choose options",
+  "cart.soldOut": "Sold out",
+  "cart.notify": "Notify me when available",
+  "cart.favorite": "Favorite",
+  "cart.inFavorites": "In favorites",
+  "cart.title": "Your cart",
+  "cart.empty": "Your cart is empty.",
+  "cart.keepBrowsing": "Keep browsing",
+  "cart.subtotal": "Subtotal",
+  "cart.checkout": "Checkout",
+  "cart.clear": "Empty cart",
+  "cart.freeShipping": "You've got free shipping!",
+  "cart.remainingA": "You're",
+  "cart.remainingB": "away from free shipping",
+  "cart.shippingNote": "Shipping and taxes calculated at checkout.",
+  "search.placeholder": "Search products, brands…",
+  "search.empty": "No results found.",
+  "search.hint": "Type to search the catalog.",
+  "fav.title": "Favorites",
+  "fav.kicker": "Your selection",
+  "fav.empty": "You haven't saved any favorites yet.",
+  "fav.explore": "Explore the store",
+  "footer.tagline":
+    "First-class equipment and objects for the world of polo and equestrian life. Noble materials, craft and timeless design.",
+  "footer.brands": "Brands",
+  "footer.help": "Help",
+  "footer.catalog": "Catalog",
+  "footer.cart": "Cart",
+  "footer.shipping": "Shipping & returns",
+  "footer.newsletter": "News",
+  "footer.newsletterDesc": "Join to hear about launches and limited editions.",
+  "footer.emailPlaceholder": "Your email",
+  "footer.rights": "All rights reserved.",
+  "footer.securePayments": "Secure payments",
+  "common.loading": "Loading…",
+};
+
+const de: Dict = {
+  "nav.store": "Shop",
+  "nav.search": "Suchen",
+  "nav.favorites": "Favoriten",
+  "nav.preferences": "Einstellungen",
+  "home.hero.kicker": "Saison 2026 · Polo & Reitsport",
+  "home.hero.title": "Das Handwerk hinter jedem Stück.",
+  "home.hero.subtitle":
+    "Erstklassige Ausrüstung und Objekte aus edlen Materialien für alle, die Qualität schätzen. Schlicht, fein, für ein Leben lang.",
+  "home.hero.cta": "Kollektion entdecken",
+  "home.hero.brandCta": "Entdecken",
+  "home.featured.kicker": "Auswahl",
+  "home.featured.title": "Ausgewählte Stücke",
+  "home.viewAll": "Alle ansehen",
+  "home.brands.kicker": "Unsere Häuser",
+  "home.brands.title": "Ein eigenes Design für jede Welt.",
+  "home.brands.subtitle":
+    "Jede Marke hat ihre eigene visuelle Identität. Das Erlebnis passt sich an, ohne die Eleganz zu verlieren.",
+  "home.values.materials.title": "Edle Materialien",
+  "home.values.materials.desc":
+    "Pflanzlich gegerbtes Leder, massive Metalle und ausgewählte Textilien. Nichts Überflüssiges.",
+  "home.values.lasting.title": "Für die Ewigkeit gemacht",
+  "home.values.lasting.desc":
+    "Stücke, die ein Leben lang begleiten – auf und neben dem Pferd.",
+  "home.values.secure.title": "Sicherer Kauf",
+  "home.values.secure.desc":
+    "Geschützte Zahlungen und Versand mit Sendungsverfolgung landesweit.",
+  "home.keepExploring": "Weiter entdecken",
+  "shop.kicker": "Katalog",
+  "shop.title": "Der Shop",
+  "product.recentlyViewed": "Zuletzt angesehen",
+  "product.description": "Beschreibung",
+  "product.features": "Details",
+  "product.material": "Material",
+  "product.brand": "Marke",
+  "product.category": "Kategorie",
+  "product.options": "Optionen",
+  "product.payWith": "Bezahlen mit",
+  "product.related": "Mehr von",
+  "cart.add": "In den Warenkorb",
+  "cart.added": "Hinzugefügt",
+  "cart.chooseOptions": "Optionen wählen",
+  "cart.soldOut": "Ausverkauft",
+  "cart.notify": "Benachrichtige mich",
+  "cart.favorite": "Favorit",
+  "cart.inFavorites": "In Favoriten",
+  "cart.title": "Dein Warenkorb",
+  "cart.empty": "Dein Warenkorb ist leer.",
+  "cart.keepBrowsing": "Weiter stöbern",
+  "cart.subtotal": "Zwischensumme",
+  "cart.checkout": "Zur Kasse",
+  "cart.clear": "Warenkorb leeren",
+  "cart.freeShipping": "Du hast kostenlosen Versand!",
+  "cart.remainingA": "Dir fehlen",
+  "cart.remainingB": "bis zum kostenlosen Versand",
+  "cart.shippingNote": "Versand und Steuern werden an der Kasse berechnet.",
+  "search.placeholder": "Produkte, Marken suchen…",
+  "search.empty": "Keine Ergebnisse gefunden.",
+  "search.hint": "Tippe, um im Katalog zu suchen.",
+  "fav.title": "Favoriten",
+  "fav.kicker": "Deine Auswahl",
+  "fav.empty": "Du hast noch keine Favoriten gespeichert.",
+  "fav.explore": "Shop entdecken",
+  "footer.tagline":
+    "Erstklassige Ausrüstung und Objekte für die Welt des Polo- und Reitsports. Edle Materialien, Handwerk und zeitloses Design.",
+  "footer.brands": "Marken",
+  "footer.help": "Hilfe",
+  "footer.catalog": "Katalog",
+  "footer.cart": "Warenkorb",
+  "footer.shipping": "Versand & Rückgabe",
+  "footer.newsletter": "Neuigkeiten",
+  "footer.newsletterDesc":
+    "Melde dich an für Neuheiten und limitierte Editionen.",
+  "footer.emailPlaceholder": "Deine E-Mail",
+  "footer.rights": "Alle Rechte vorbehalten.",
+  "footer.securePayments": "Sichere Zahlungen",
+  "common.loading": "Wird geladen…",
+};
+
+export const DICTIONARIES: Record<Locale, Dict> = { es, en, de };
+
+/** Crea la función de traducción para un idioma. */
+export function createTranslator(locale: Locale) {
+  const table = DICTIONARIES[locale] ?? DICTIONARIES[DEFAULT_LOCALE];
+  return (key: string): string =>
+    table[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key;
+}

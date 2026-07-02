@@ -10,6 +10,7 @@ import {
 import { ProductCard } from "@/components/site/product-card";
 import { ProductSort } from "@/components/site/product-sort";
 import { Reveal } from "@/components/site/reveal";
+import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Tienda" };
@@ -27,7 +28,7 @@ export default async function ProductosPage({
   searchParams: SearchParams;
 }) {
   const sp = await searchParams;
-  const [brands, categories, products] = await Promise.all([
+  const [brands, categories, products, t] = await Promise.all([
     getBrands(),
     getCategories(sp.marca),
     getProducts({
@@ -36,6 +37,7 @@ export default async function ProductosPage({
       q: sp.q,
       sort: sp.orden,
     }),
+    getT(),
   ]);
 
   const makeHref = (patch: Record<string, string | undefined>) => {
@@ -60,8 +62,8 @@ export default async function ProductosPage({
   return (
     <div className="container-page py-12 md:py-16">
       <header className="mb-8">
-        <p className="kicker text-accent">Catálogo</p>
-        <h1 className="mt-2 font-heading text-4xl md:text-5xl">La tienda</h1>
+        <p className="kicker text-accent">{t("shop.kicker")}</p>
+        <h1 className="mt-2 font-heading text-4xl md:text-5xl">{t("shop.title")}</h1>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-[248px_1fr] lg:gap-12">

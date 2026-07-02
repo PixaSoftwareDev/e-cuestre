@@ -110,7 +110,10 @@ export default async function AdminDashboard() {
               </thead>
               <tbody>
                 {recentOrders.map((o) => (
-                  <tr key={o.id} className="border-b border-border/60">
+                  <tr
+                    key={o.id}
+                    className="border-b border-border/60 transition-colors hover:bg-fg/[0.02]"
+                  >
                     <td className="py-3">
                       <Link href={`/admin/ordenes`} className="font-medium hover:text-primary">
                         {o.number}

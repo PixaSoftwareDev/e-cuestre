@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PaymentMethods } from "@/components/site/payment-methods";
 import { Logo } from "@/components/site/logo";
+import { getT } from "@/lib/i18n/server";
 
 type FooterBrand = { slug: string; name: string };
 
-export function Footer({
+export async function Footer({
   brands,
   siteName,
 }: {
@@ -13,6 +14,7 @@ export function Footer({
   siteName: string;
 }) {
   const year = 2026;
+  const t = await getT();
   return (
     <footer className="mt-20 border-t border-border bg-card md:mt-32">
       <div className="container-page py-12 md:py-20">
@@ -21,14 +23,13 @@ export function Footer({
           <div className="col-span-2 md:col-span-1">
             <Logo imgClassName="h-9" textClassName="text-2xl" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
-              Equipamiento y objetos de primera para el mundo del polo y la vida
-              ecuestre. Materiales nobles, oficio y diseño atemporal.
+              {t("footer.tagline")}
             </p>
           </div>
 
           {/* Marcas */}
           <div>
-            <p className="kicker text-muted">Marcas</p>
+            <p className="kicker text-muted">{t("footer.brands")}</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               {brands.map((b) => (
                 <li key={b.slug}>
@@ -45,37 +46,37 @@ export function Footer({
 
           {/* Ayuda */}
           <div>
-            <p className="kicker text-muted">Ayuda</p>
+            <p className="kicker text-muted">{t("footer.help")}</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
                 <Link href="/productos" className="text-fg/80 transition-colors hover:text-primary">
-                  Catálogo
+                  {t("footer.catalog")}
                 </Link>
               </li>
               <li>
                 <Link href="/carrito" className="text-fg/80 transition-colors hover:text-primary">
-                  Carrito
+                  {t("footer.cart")}
                 </Link>
               </li>
               <li>
-                <span className="text-fg/80">Envíos y devoluciones</span>
+                <span className="text-fg/80">{t("footer.shipping")}</span>
               </li>
             </ul>
           </div>
 
           {/* Newsletter */}
           <div className="col-span-2 md:col-span-1">
-            <p className="kicker text-muted">Novedades</p>
+            <p className="kicker text-muted">{t("footer.newsletter")}</p>
             <p className="mt-4 text-sm text-muted">
-              Sumate para conocer lanzamientos y ediciones limitadas.
+              {t("footer.newsletterDesc")}
             </p>
             {/* TODO: conectar a un servicio de email. Por ahora es visual. */}
             <form className="mt-4 flex items-center gap-2" action="#">
               <input
                 type="email"
                 required
-                placeholder="Tu correo"
-                aria-label="Correo para novedades"
+                placeholder={t("footer.emailPlaceholder")}
+                aria-label={t("footer.emailPlaceholder")}
                 className="h-11 w-full rounded-brand border border-border bg-bg px-3 text-sm transition-colors focus-visible:border-primary focus-visible:outline-none"
               />
               <button
@@ -94,10 +95,10 @@ export function Footer({
       <div className="border-t border-border">
         <div className="container-page flex flex-col items-center justify-between gap-4 py-6 text-xs text-muted md:flex-row">
           <p>
-            © {year} {siteName}. Todos los derechos reservados.
+            © {year} {siteName}. {t("footer.rights")}
           </p>
           <div className="flex items-center gap-3">
-            <span>Pagos seguros</span>
+            <span>{t("footer.securePayments")}</span>
             <PaymentMethods size={24} />
           </div>
         </div>

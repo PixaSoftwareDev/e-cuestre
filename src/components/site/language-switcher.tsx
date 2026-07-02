@@ -1,36 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/i18n-provider";
+import type { Locale } from "@/lib/i18n/dictionaries";
 
-type Lang = { code: string; short: string; label: string };
+type Lang = { code: Locale; short: string; label: string };
 
 const LANGS: Lang[] = [
-  { code: "es-AR", short: "ES", label: "Español (AR)" },
+  { code: "es", short: "ES", label: "Español" },
   { code: "en", short: "EN", label: "English" },
   { code: "de", short: "DE", label: "Deutsch" },
 ];
 
 /**
- * Selector de idioma (widget). Por ahora solo guarda la preferencia y actualiza
- * el atributo lang del <html>; NO traduce el contenido todavía.
+ * Selector de idioma. Guarda el idioma en una cookie y refresca para que las
+ * páginas del servidor se rendericen traducidas.
  */
 export function LanguageSwitcher({ up = false }: { up?: boolean }) {
   const [open, setOpen] = useState(false);
-  const [current, setCurrent] = useState<Lang>(LANGS[0]);
+  const router = useRouter();
+  const { locale } = useI18n();
+  const current = LANGS.find((l) => l.code === locale) ?? LANGS[0];
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("ecuestre-lang");
-      const found = LANGS.find((l) => l.code === saved);
-      if (found) setCurrent(found);
-    } catch {
-      /* localStorage no disponible */
-    }
-  }, []);
 
   // Cerrar al hacer click afuera o presionar Escape.
   useEffect(() => {
@@ -48,14 +43,12 @@ export function LanguageSwitcher({ up = false }: { up?: boolean }) {
   }, [open]);
 
   function choose(lang: Lang) {
-    setCurrent(lang);
     setOpen(false);
-    try {
-      localStorage.setItem("ecuestre-lang", lang.code);
-    } catch {
-      /* ignore */
-    }
-    document.documentElement.lang = lang.code.split("-")[0];
+    if (lang.code === locale) return;
+    // Cookie de idioma (1 año) + refresh para re-renderizar en el servidor.
+    document.cookie = `lang=${lang.code}; path=/; max-age=31536000; samesite=lax`;
+    document.documentElement.lang = lang.code;
+    router.refresh();
   }
 
   return (

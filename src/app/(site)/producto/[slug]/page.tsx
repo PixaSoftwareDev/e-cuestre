@@ -61,8 +61,35 @@ export default async function ProductPage({
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
 
+  // Structured data (Product) para rich snippets de Google.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const abs = (u?: string) =>
+    !u ? undefined : u.startsWith("http") ? u : `${siteUrl}${u}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: product.images.map((i) => abs(i.url)).filter(Boolean),
+    description: product.description ?? undefined,
+    sku: product.variants[0]?.sku ?? undefined,
+    brand: { "@type": "Brand", name: product.brand.name },
+    offers: {
+      "@type": "Offer",
+      url: `${siteUrl}/producto/${product.slug}`,
+      priceCurrency: product.currency,
+      price: (price / 100).toFixed(2),
+      availability: soldOut
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+    },
+  };
+
   return (
     <BrandThemeProvider theme={product.brand.theme as BrandTheme | null}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ProductViewTracker
         productId={product.id}
         brandId={product.brandId}
@@ -88,7 +115,11 @@ export default async function ProductPage({
         </nav>
 
         <div className="grid gap-10 md:grid-cols-2 md:gap-16">
-          <ProductGallery images={product.images} name={product.name} />
+          <ProductGallery
+            images={product.images}
+            name={product.name}
+            slug={product.slug}
+          />
 
           <div className="md:sticky md:top-28 md:self-start">
             <Link

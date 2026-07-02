@@ -7,7 +7,15 @@ import { cn } from "@/lib/utils";
 
 type Img = { url: string; alt?: string | null };
 
-export function ProductGallery({ images, name }: { images: Img[]; name: string }) {
+export function ProductGallery({
+  images,
+  name,
+  slug,
+}: {
+  images: Img[];
+  name: string;
+  slug?: string;
+}) {
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState(false);
   const [origin, setOrigin] = useState("50% 50%");
@@ -85,6 +93,8 @@ export function ProductGallery({ images, name }: { images: Img[]; name: string }
               style={{
                 transform: zoom ? "scale(1.7)" : "scale(1)",
                 transformOrigin: origin,
+                viewTransitionName:
+                  slug && active === 0 ? `product-${slug}` : undefined,
               }}
             />
           </motion.div>

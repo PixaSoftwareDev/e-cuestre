@@ -152,15 +152,15 @@ html.dark {
   .sheen {
     background-image: linear-gradient(
       110deg,
-      transparent 25%,
-      color-mix(in srgb, #fff 16%, transparent) 48%,
-      transparent 62%
+      transparent 20%,
+      color-mix(in srgb, #fff 30%, transparent) 48%,
+      transparent 60%
     );
     background-size: 220% 100%;
     background-position: 210% 0;
     background-repeat: no-repeat;
     transition:
-      background-position 0.9s var(--ease-smooth),
+      background-position 0.7s var(--ease-smooth),
       filter 0.2s ease,
       transform 0.2s ease,
       box-shadow 0.3s ease;
@@ -217,9 +217,10 @@ html.dark {
   .nav-icon:hover {
     background-color: color-mix(in srgb, var(--color-fg) 7%, transparent);
     color: var(--color-primary);
+    transform: scale(1.1);
   }
   .nav-icon:active {
-    transform: scale(0.9);
+    transform: scale(0.88);
   }
 
   /* Navbar en modo overlay (transparente sobre el hero): íconos en blanco,
@@ -255,6 +256,16 @@ html.dark {
   .animate-scroll-cue {
     animation: scroll-cue 2s var(--ease-smooth) infinite;
   }
+}
+
+/* Duración/easing de las View Transitions (imagen que vuela card → ficha). */
+::view-transition-group(*) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
 }
 
 @media (prefers-reduced-motion: reduce) {

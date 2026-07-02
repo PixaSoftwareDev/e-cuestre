@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Jost, Inter } from "next/font/google";
+import { ViewTransitions } from "next-view-transitions";
 import { getLocale } from "@/lib/i18n/server";
 import { I18nProvider } from "@/components/i18n-provider";
 import "./globals.css";
@@ -48,28 +50,24 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
+  const [locale, cookieStore] = await Promise.all([getLocale(), cookies()]);
+  // El tema se lee de una cookie y se aplica en el servidor: sin flash y sin
+  // scripts inline (que chocan con las View Transitions).
+  const isDark = cookieStore.get("theme")?.value === "dark";
   return (
     <html
       lang={locale}
-      className={`${jost.variable} ${inter.variable} h-full antialiased`}
+      className={`${jost.variable} ${inter.variable} h-full antialiased${
+        isDark ? " dark" : ""
+      }`}
       // Extensiones de navegador (theme switchers) inyectan atributos en <html>
       // antes de la hidratación. Evita el falso warning de hydration mismatch.
       suppressHydrationWarning
     >
-      <head>
-        {/*
-          Aplica el modo claro/oscuro antes del primer paint para evitar flash.
-          Lee la preferencia guardada o, si no hay, la del sistema operativo.
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
-          }}
-        />
-      </head>
       <body className="min-h-full flex flex-col">
-        <I18nProvider locale={locale}>{children}</I18nProvider>
+        <ViewTransitions>
+          <I18nProvider locale={locale}>{children}</I18nProvider>
+        </ViewTransitions>
       </body>
     </html>
   );

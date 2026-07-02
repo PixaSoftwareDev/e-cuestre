@@ -32,7 +32,7 @@ export function StatCard({
   icon,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   hint?: string;
   accent?: boolean;
   icon?: React.ReactNode;

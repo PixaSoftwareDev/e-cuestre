@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import Image from "next/image";
 import {
   type ProductFull,
@@ -29,6 +29,7 @@ export function ProductCard({ product }: { product: ProductFull }) {
             alt={img.alt ?? product.name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
+            style={{ viewTransitionName: `product-${product.slug}` }}
             className="object-cover transition-transform duration-[900ms] ease-[var(--ease-smooth)] group-hover:scale-[1.06]"
           />
         )}
@@ -98,7 +99,9 @@ export function ProductCard({ product }: { product: ProductFull }) {
       <div className="mt-4 space-y-1">
         <p className="kicker text-muted">{product.brand.name}</p>
         <h3 className="font-heading text-base leading-snug transition-colors group-hover:text-primary">
-          {product.name}
+          <span className="bg-gradient-to-r from-primary to-primary bg-[length:0%_1px] bg-left-bottom bg-no-repeat pb-px transition-[background-size] duration-500 ease-[var(--ease-smooth)] group-hover:bg-[length:100%_1px]">
+            {product.name}
+          </span>
         </h3>
         <div className="flex items-baseline gap-2">
           <span className="text-sm tabular-nums">

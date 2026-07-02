@@ -77,7 +77,7 @@ export function Navbar({
         <Link
           href="/"
           aria-label={siteName}
-          className="absolute left-1/2 flex -translate-x-1/2 items-center gap-3"
+          className="group absolute left-1/2 flex -translate-x-1/2 items-center gap-3"
         >
           {overlay ? (
             <Image
@@ -87,7 +87,7 @@ export function Navbar({
               height={57}
               sizes="60px"
               priority
-              className="h-10 w-auto md:h-12"
+              className="h-10 w-auto md:h-12 transition-transform duration-300 ease-[var(--ease-smooth)] group-hover:scale-110"
             />
           ) : (
             <>
@@ -98,7 +98,7 @@ export function Navbar({
                 height={57}
                 sizes="60px"
                 priority
-                className="h-10 w-auto md:h-12 dark:hidden"
+                className="h-10 w-auto md:h-12 transition-transform duration-300 ease-[var(--ease-smooth)] group-hover:scale-110 dark:hidden"
               />
               <Image
                 src="/logo-blanco.png"
@@ -107,7 +107,7 @@ export function Navbar({
                 height={57}
                 sizes="60px"
                 priority
-                className="hidden h-10 w-auto md:h-12 dark:block"
+                className="hidden h-10 w-auto md:h-12 transition-transform duration-300 ease-[var(--ease-smooth)] group-hover:scale-110 dark:block"
               />
             </>
           )}

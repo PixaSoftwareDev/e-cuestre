@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 /**
  * Alterna el modo claro/oscuro de la app.
  *
- * El tema real lo aplica un script inline en el <head> (ver layout raíz) antes
- * del primer paint, para no tener flash. Acá solo sincronizamos el estado al
- * montar y alternamos la clase `dark` en <html>, guardando la preferencia.
+ * El tema se guarda en una cookie que el servidor lee para aplicar la clase
+ * `dark` en <html> (sin flash, sin scripts inline). Acá alternamos la clase al
+ * instante y persistimos la cookie.
  */
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
@@ -24,11 +24,7 @@ export function ThemeToggle() {
     const next = !isDark;
     setIsDark(next);
     document.documentElement.classList.toggle("dark", next);
-    try {
-      localStorage.setItem("theme", next ? "dark" : "light");
-    } catch {
-      /* localStorage bloqueado: no pasa nada, se pierde la persistencia */
-    }
+    document.cookie = `theme=${next ? "dark" : "light"}; path=/; max-age=31536000; samesite=lax`;
   }
 
   return (

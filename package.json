@@ -37,6 +37,7 @@
     "mercadopago": "^2.0.0",
     "motion": "^12.42.2",
     "next": "16.2.9",
+    "next-view-transitions": "^0.3.4",
     "prisma": "^6.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",

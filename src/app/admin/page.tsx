@@ -9,6 +9,7 @@ import { formatMoney } from "@/lib/money";
 import { PageHeader, StatCard, Panel } from "@/components/admin/ui";
 import { RevenueChart } from "@/components/admin/charts";
 import { Badge } from "@/components/ui/badge";
+import { CountUp } from "@/components/admin/count-up";
 import { DollarSign, ShoppingCart, Package, AlertTriangle } from "lucide-react";
 
 const CURRENCY = process.env.NEXT_PUBLIC_PAYPAL_CURRENCY ?? "USD";
@@ -44,25 +45,25 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           label="Ingresos"
-          value={formatMoney(stats.revenue, CURRENCY)}
+          value={<CountUp value={stats.revenue} currency={CURRENCY} />}
           hint={`${stats.paidOrders} órdenes pagadas`}
           icon={<DollarSign className="h-4 w-4" strokeWidth={1.75} />}
           accent
         />
         <StatCard
           label="Órdenes"
-          value={String(stats.totalOrders)}
+          value={<CountUp value={stats.totalOrders} />}
           hint={`${stats.pendingOrders} pendientes`}
           icon={<ShoppingCart className="h-4 w-4" strokeWidth={1.75} />}
         />
         <StatCard
           label="Productos activos"
-          value={String(stats.activeProducts)}
+          value={<CountUp value={stats.activeProducts} />}
           icon={<Package className="h-4 w-4" strokeWidth={1.75} />}
         />
         <StatCard
           label="Stock bajo"
-          value={String(stats.lowStockVariants)}
+          value={<CountUp value={stats.lowStockVariants} />}
           hint="variantes con ≤ 3 unidades"
           icon={<AlertTriangle className="h-4 w-4" strokeWidth={1.75} />}
         />

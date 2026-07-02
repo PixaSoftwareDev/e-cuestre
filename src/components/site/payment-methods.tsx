@@ -2,6 +2,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const METHODS = [
+  { src: "/payments/mercadopago.png", alt: "Mercado Pago" },
   { src: "/payments/visa.svg", alt: "Visa" },
   { src: "/payments/mastercard.svg", alt: "Mastercard" },
   { src: "/payments/amex.svg", alt: "American Express" },

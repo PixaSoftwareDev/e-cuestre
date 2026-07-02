@@ -14,17 +14,23 @@ import { useCart, cartSubtotal } from "@/store/cart";
 import { formatMoney } from "@/lib/money";
 import { Input, Label } from "@/components/ui/input";
 import { PaymentMethods } from "@/components/site/payment-methods";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/track";
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 const PAYPAL_CURRENCY = process.env.NEXT_PUBLIC_PAYPAL_CURRENCY ?? "USD";
+const MP_ENABLED = Boolean(process.env.NEXT_PUBLIC_MP_ENABLED);
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clear } = useCart();
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [method, setMethod] = useState<"mp" | "paypal">(
+    MP_ENABLED ? "mp" : "paypal",
+  );
+  const [mpLoading, setMpLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
     name: "",
@@ -66,6 +72,49 @@ export default function CheckoutPage() {
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  async function payWithMP() {
+    if (!formValid || mpLoading) return;
+    setError(null);
+    setMpLoading(true);
+    try {
+      const res = await fetch("/api/checkout/mp/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            productId: i.productId,
+            variantId: i.variantId,
+            quantity: i.quantity,
+          })),
+          customer: {
+            email: form.email,
+            name: form.name,
+            phone: form.phone || undefined,
+            address: {
+              line1: form.address,
+              city: form.city,
+              zip: form.zip,
+              country: form.country,
+            },
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.initPoint) {
+        setError(data.error ?? "No se pudo iniciar el pago con Mercado Pago.");
+        setMpLoading(false);
+        return;
+      }
+      // Redirige a Mercado Pago (Checkout Pro).
+      window.location.href = data.initPoint;
+    } catch {
+      setError("No pudimos conectar con Mercado Pago. Probá de nuevo.");
+      setMpLoading(false);
+    }
+  }
+
+  const anyMethod = MP_ENABLED || Boolean(PAYPAL_CLIENT_ID);
 
   return (
     <div className="container-page grid gap-12 py-12 md:grid-cols-2 md:py-16">
@@ -130,21 +179,54 @@ export default function CheckoutPage() {
             </p>
           )}
 
-          {!PAYPAL_CLIENT_ID ? (
+          {!formValid && anyMethod && (
+            <p className="mb-3 text-sm text-muted">
+              Completá tu email y nombre para habilitar el pago.
+            </p>
+          )}
+
+          {!anyMethod ? (
             <div className="rounded-brand border border-dashed border-border p-6 text-sm text-muted">
-              PayPal aún no está configurado. Definí{" "}
-              <code className="text-fg">NEXT_PUBLIC_PAYPAL_CLIENT_ID</code> en tu{" "}
-              <code className="text-fg">.env</code> para habilitar el pago. Ver la
-              guía en <code className="text-fg">docs/PAYPAL.md</code>.
+              Ningún medio de pago está configurado todavía. Definí{" "}
+              <code className="text-fg">MP_ACCESS_TOKEN</code> (Mercado Pago) o{" "}
+              <code className="text-fg">NEXT_PUBLIC_PAYPAL_CLIENT_ID</code> (PayPal)
+              en tu <code className="text-fg">.env</code>.
             </div>
           ) : (
-            <>
-              {!formValid && (
-                <p className="mb-3 text-sm text-muted">
-                  Completá tu email y nombre para habilitar el pago.
-                </p>
+            <div className={formValid ? "" : "pointer-events-none opacity-50"}>
+              {/* Selector de método (si hay más de uno) */}
+              {MP_ENABLED && PAYPAL_CLIENT_ID && (
+                <div className="mb-4 grid grid-cols-2 gap-2">
+                  <MethodTab
+                    active={method === "mp"}
+                    onClick={() => setMethod("mp")}
+                    label="Mercado Pago"
+                    hint="Tarjetas y cuotas"
+                  />
+                  <MethodTab
+                    active={method === "paypal"}
+                    onClick={() => setMethod("paypal")}
+                    label="PayPal"
+                    hint="Tarjeta internacional"
+                  />
+                </div>
               )}
-              <div className={formValid ? "" : "pointer-events-none opacity-50"}>
+
+              {/* Mercado Pago (Checkout Pro) */}
+              {method === "mp" && MP_ENABLED && (
+                <Button
+                  size="lg"
+                  className="w-full"
+                  loading={mpLoading}
+                  disabled={!formValid}
+                  onClick={payWithMP}
+                >
+                  Pagar con Mercado Pago
+                </Button>
+              )}
+
+              {/* PayPal */}
+              {method === "paypal" && PAYPAL_CLIENT_ID && (
                 <PayPalScriptProvider
                   options={{
                     clientId: PAYPAL_CLIENT_ID,
@@ -220,8 +302,8 @@ export default function CheckoutPage() {
                     }}
                   />
                 </PayPalScriptProvider>
-              </div>
-            </>
+              )}
+            </div>
           )}
 
           {/* Confianza */}
@@ -334,5 +416,35 @@ function Step({
         {label}
       </span>
     </li>
+  );
+}
+
+/** Botón de selección de medio de pago. */
+function MethodTab({
+  active,
+  onClick,
+  label,
+  hint,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  hint: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "rounded-brand border p-3 text-left transition-colors",
+        active
+          ? "border-primary bg-primary/5"
+          : "border-border hover:border-fg/30",
+      )}
+    >
+      <p className="text-sm font-medium">{label}</p>
+      <p className="text-xs text-muted">{hint}</p>
+    </button>
   );
 }

@@ -18,6 +18,13 @@ type FormVariant = {
   price: string; // decimal, vacío = usa precio base
   stock: string;
 };
+type FormColor = {
+  id?: string;
+  name: string;
+  hex: string;
+  images: FormImage[];
+  variants: FormVariant[];
+};
 
 export type ProductFormInitial = {
   id?: string;
@@ -36,6 +43,7 @@ export type ProductFormInitial = {
   tags: string; // coma separada
   images: FormImage[];
   variants: FormVariant[];
+  colors: FormColor[];
 };
 
 const empty: ProductFormInitial = {
@@ -54,6 +62,7 @@ const empty: ProductFormInitial = {
   tags: "",
   images: [],
   variants: [{ name: "Único", sku: "", price: "", stock: "0" }],
+  colors: [],
 };
 
 export function ProductForm({
@@ -76,21 +85,26 @@ export function ProductForm({
     v: ProductFormInitial[K],
   ) => setF((s) => ({ ...s, [k]: v }));
 
+  async function uploadFiles(files: FileList | null): Promise<FormImage[]> {
+    if (!files?.length) return [];
+    const uploaded: FormImage[] = [];
+    for (const file of Array.from(files)) {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error al subir");
+      uploaded.push({ url: data.url });
+    }
+    return uploaded;
+  }
+
   async function handleUpload(files: FileList | null) {
-    if (!files?.length) return;
     setUploading(true);
     setError(null);
     try {
-      const uploaded: FormImage[] = [];
-      for (const file of Array.from(files)) {
-        const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Error al subir");
-        uploaded.push({ url: data.url });
-      }
-      set("images", [...f.images, ...uploaded]);
+      const up = await uploadFiles(files);
+      set("images", [...f.images, ...up]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error al subir imagen");
     } finally {
@@ -103,13 +117,50 @@ export function ProductForm({
     if (url) set("images", [...f.images, { url }]);
   }
 
+  // ── Helpers de colores ──────────────────────────────────────
+  function updateColor(ci: number, patch: Partial<FormColor>) {
+    const arr = [...f.colors];
+    arr[ci] = { ...arr[ci], ...patch };
+    set("colors", arr);
+  }
+
+  async function handleColorUpload(ci: number, files: FileList | null) {
+    setUploading(true);
+    setError(null);
+    try {
+      const up = await uploadFiles(files);
+      updateColor(ci, { images: [...f.colors[ci].images, ...up] });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al subir imagen");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   function submit() {
     setError(null);
     if (!f.name.trim()) return setError("El nombre es obligatorio.");
     if (!f.brandId) return setError("Elegí una marca.");
     if (!f.basePrice || isNaN(Number(f.basePrice)))
       return setError("Ingresá un precio base válido.");
-    if (f.variants.length === 0) return setError("Agregá al menos una variante.");
+    const hasColors = f.colors.length > 0;
+    if (!hasColors && f.variants.length === 0)
+      return setError("Agregá al menos una variante (o cargá colores).");
+    if (hasColors) {
+      for (const c of f.colors) {
+        if (!c.name.trim()) return setError("Ponele nombre a cada color.");
+        if (c.variants.length === 0)
+          return setError(`Agregá talles al color "${c.name}".`);
+      }
+    }
+
+    const mapVariant = (v: FormVariant) => ({
+      id: v.id,
+      name: v.name.trim(),
+      sku: v.sku.trim() || undefined,
+      price: v.price ? toCents(Number(v.price)) : null,
+      stock: Math.max(0, Math.floor(Number(v.stock) || 0)),
+    });
 
     const payload = {
       id: f.id,
@@ -130,12 +181,13 @@ export function ProductForm({
         .map((t) => t.trim().toLowerCase())
         .filter(Boolean),
       images: f.images,
-      variants: f.variants.map((v) => ({
-        id: v.id,
-        name: v.name.trim(),
-        sku: v.sku.trim() || undefined,
-        price: v.price ? toCents(Number(v.price)) : null,
-        stock: Math.max(0, Math.floor(Number(v.stock) || 0)),
+      variants: f.variants.map(mapVariant),
+      colors: f.colors.map((c) => ({
+        id: c.id,
+        name: c.name.trim(),
+        hex: c.hex,
+        images: c.images,
+        variants: c.variants.map(mapVariant),
       })),
     };
 
@@ -341,6 +393,180 @@ export function ProductForm({
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Colores (opcional) */}
+        <section className="rounded-brand border border-border bg-card p-6">
+          <div className="mb-1 flex items-center justify-between">
+            <h2 className="font-heading text-lg">Colores</h2>
+            <Button
+              type="button"
+              variant="subtle"
+              size="sm"
+              onClick={() =>
+                set("colors", [
+                  ...f.colors,
+                  { name: "", hex: "#888888", images: [], variants: [] },
+                ])
+              }
+            >
+              <Plus className="h-4 w-4" /> Color
+            </Button>
+          </div>
+          <p className="mb-4 text-xs text-muted">
+            Opcional. Si cargás colores, cada uno tiene sus propias fotos y
+            talles (las imágenes y variantes de arriba se ignoran).
+          </p>
+
+          {f.colors.length === 0 ? (
+            <p className="text-sm text-muted">
+              Sin colores. El producto usa las imágenes y variantes de arriba.
+            </p>
+          ) : (
+            <div className="space-y-6">
+              {f.colors.map((c, ci) => (
+                <div key={ci} className="rounded-brand border border-border p-4">
+                  <div className="mb-4 flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={c.hex}
+                      onChange={(e) => updateColor(ci, { hex: e.target.value })}
+                      className="h-9 w-9 shrink-0 cursor-pointer rounded-brand border border-border bg-transparent"
+                      aria-label="Muestra de color"
+                    />
+                    <Input
+                      value={c.name}
+                      placeholder="Nombre (ej. Blanco)"
+                      onChange={(e) => updateColor(ci, { name: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        set("colors", f.colors.filter((_, j) => j !== ci))
+                      }
+                      className="flex h-9 shrink-0 items-center text-muted hover:text-red-600 dark:hover:text-red-400"
+                      aria-label="Quitar color"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Fotos del color */}
+                  <div className="mb-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs text-muted">
+                        Fotos de este color
+                      </span>
+                      <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-brand border border-border px-3 py-1.5 text-xs hover:border-fg/30">
+                        <Upload className="h-3.5 w-3.5" /> Subir
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => handleColorUpload(ci, e.target.files)}
+                        />
+                      </label>
+                    </div>
+                    {c.images.length === 0 ? (
+                      <p className="text-xs text-muted">Sin fotos.</p>
+                    ) : (
+                      <div className="grid grid-cols-5 gap-2">
+                        {c.images.map((img, ii) => (
+                          <div
+                            key={ii}
+                            className="group relative aspect-square overflow-hidden rounded-brand bg-fg/5"
+                          >
+                            <Image
+                              src={img.url}
+                              alt=""
+                              fill
+                              sizes="80px"
+                              className="object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateColor(ci, {
+                                  images: c.images.filter((_, j) => j !== ii),
+                                })
+                              }
+                              className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                              aria-label="Quitar foto"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Talles del color */}
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs text-muted">Talles y stock</span>
+                      <Button
+                        type="button"
+                        variant="subtle"
+                        size="sm"
+                        onClick={() =>
+                          updateColor(ci, {
+                            variants: [
+                              ...c.variants,
+                              { name: "", sku: "", price: "", stock: "0" },
+                            ],
+                          })
+                        }
+                      >
+                        <Plus className="h-4 w-4" /> Talle
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {c.variants.map((v, vi) => (
+                        <div
+                          key={vi}
+                          className="grid grid-cols-[1fr_80px_32px] items-center gap-2"
+                        >
+                          <Input
+                            value={v.name}
+                            placeholder="Talle (S, M, L)"
+                            onChange={(e) => {
+                              const arr = [...c.variants];
+                              arr[vi] = { ...v, name: e.target.value };
+                              updateColor(ci, { variants: arr });
+                            }}
+                          />
+                          <Input
+                            value={v.stock}
+                            inputMode="numeric"
+                            placeholder="Stock"
+                            onChange={(e) => {
+                              const arr = [...c.variants];
+                              arr[vi] = { ...v, stock: e.target.value };
+                              updateColor(ci, { variants: arr });
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateColor(ci, {
+                                variants: c.variants.filter((_, j) => j !== vi),
+                              })
+                            }
+                            className="flex h-9 items-center justify-center text-muted hover:text-red-600 dark:hover:text-red-400"
+                            aria-label="Quitar talle"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
 

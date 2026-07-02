@@ -8,6 +8,7 @@ import {
   Package,
   Tags,
   ShoppingCart,
+  Star,
   BarChart3,
   Video,
   ExternalLink,
@@ -23,6 +24,7 @@ const links = [
   { href: "/admin/productos", label: "Productos", icon: Package },
   { href: "/admin/marcas", label: "Marcas", icon: Tags },
   { href: "/admin/ordenes", label: "Órdenes", icon: ShoppingCart },
+  { href: "/admin/resenas", label: "Reseñas", icon: Star },
   { href: "/admin/metricas", label: "Métricas", icon: BarChart3 },
   { href: "/admin/grabaciones", label: "Grabaciones", icon: Video },
 ];

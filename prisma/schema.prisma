@@ -85,6 +85,8 @@ model Product {
 
   images     ProductImage[]
   variants   ProductVariant[]
+  colors     ProductColor[]
+  reviews    Review[]
   orderItems OrderItem[]
 
   @@index([brandId])
@@ -92,25 +94,65 @@ model Product {
   @@index([featured])
 }
 
-model ProductImage {
+/// Reseña de un producto. Cualquiera puede dejarla; el admin la aprueba antes
+/// de publicarla. `verified` = el email coincide con una compra pagada.
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating     Int // 1 a 5
+  title      String?
+  comment    String?
+  authorName String
+  email      String
+  verified   Boolean  @default(false)
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([productId])
+  @@index([approved])
+}
+
+/// Color de un producto (con su muestra). Cada color puede tener sus propias
+/// fotos y sus propios talles (stock). Opcional: los productos sin colores
+/// funcionan con las imágenes/variantes generales (colorId null).
+model ProductColor {
   id        String  @id @default(cuid())
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String // ej. "Blanco"
+  hex       String // ej. "#f5f5f0"
+  sortOrder Int     @default(0)
+
+  images   ProductImage[]
+  variants ProductVariant[]
+
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String        @id @default(cuid())
+  productId String
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId   String?
+  color     ProductColor? @relation(fields: [colorId], references: [id], onDelete: SetNull)
   url       String
   alt       String?
-  sortOrder Int     @default(0)
+  sortOrder Int           @default(0)
 }
 
 model ProductVariant {
-  id         String  @id @default(cuid())
+  id         String        @id @default(cuid())
   productId  String
-  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku        String  @unique
-  name       String // ej. "Talle M / Negro"
+  product    Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId    String?
+  color      ProductColor? @relation(fields: [colorId], references: [id], onDelete: SetNull)
+  sku        String        @unique
+  name       String // ej. "M" (talle). El color va en `color`.
   price      Int? // override en centavos; null => usa basePrice
-  stock      Int     @default(0)
-  attributes Json? // { talle: "M", color: "Negro" }
-  sortOrder  Int     @default(0)
+  stock      Int           @default(0)
+  attributes Json? // extra opcional
+  sortOrder  Int           @default(0)
 
   orderItems OrderItem[]
 }

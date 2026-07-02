@@ -21,6 +21,13 @@ export default async function EditProductPage({
       include: {
         images: { orderBy: { sortOrder: "asc" } },
         variants: { orderBy: { sortOrder: "asc" } },
+        colors: {
+          orderBy: { sortOrder: "asc" },
+          include: {
+            images: { orderBy: { sortOrder: "asc" } },
+            variants: { orderBy: { sortOrder: "asc" } },
+          },
+        },
         category: true,
       },
     }),
@@ -47,13 +54,31 @@ export default async function EditProductPage({
     status: product.status,
     featured: product.featured,
     tags: product.tags.join(", "),
-    images: product.images.map((i) => ({ url: i.url, alt: i.alt ?? undefined })),
-    variants: product.variants.map((v) => ({
-      id: v.id,
-      name: v.name,
-      sku: v.sku,
-      price: dec(v.price),
-      stock: String(v.stock),
+    // Solo las imágenes/variantes GENERALES (sin color).
+    images: product.images
+      .filter((i) => !i.colorId)
+      .map((i) => ({ url: i.url, alt: i.alt ?? undefined })),
+    variants: product.variants
+      .filter((v) => !v.colorId)
+      .map((v) => ({
+        id: v.id,
+        name: v.name,
+        sku: v.sku,
+        price: dec(v.price),
+        stock: String(v.stock),
+      })),
+    colors: product.colors.map((c) => ({
+      id: c.id,
+      name: c.name,
+      hex: c.hex,
+      images: c.images.map((i) => ({ url: i.url, alt: i.alt ?? undefined })),
+      variants: c.variants.map((v) => ({
+        id: v.id,
+        name: v.name,
+        sku: v.sku,
+        price: dec(v.price),
+        stock: String(v.stock),
+      })),
     })),
   };
 

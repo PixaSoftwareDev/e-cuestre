@@ -12,6 +12,19 @@ async function requireAdmin() {
   return session;
 }
 
+const variantSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1),
+  sku: z.string().optional(),
+  price: z.number().int().nonnegative().nullable().optional(),
+  stock: z.number().int().nonnegative(),
+});
+
+const imageSchema = z.object({
+  url: z.string().min(1),
+  alt: z.string().optional(),
+});
+
 const productSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(2),
@@ -27,20 +40,19 @@ const productSchema = z.object({
   status: z.enum(["DRAFT", "ACTIVE", "ARCHIVED"]),
   featured: z.boolean().default(false),
   tags: z.array(z.string()).default([]),
-  images: z
-    .array(z.object({ url: z.string().min(1), alt: z.string().optional() }))
-    .default([]),
-  variants: z
+  images: z.array(imageSchema).default([]),
+  variants: z.array(variantSchema).default([]),
+  colors: z
     .array(
       z.object({
         id: z.string().optional(),
         name: z.string().min(1),
-        sku: z.string().optional(),
-        price: z.number().int().nonnegative().nullable().optional(),
-        stock: z.number().int().nonnegative(),
+        hex: z.string().min(1),
+        images: z.array(imageSchema).default([]),
+        variants: z.array(variantSchema).default([]),
       }),
     )
-    .min(1, "Agregá al menos una variante"),
+    .default([]),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;
@@ -87,14 +99,16 @@ export async function saveProduct(input: ProductInput) {
 
   if (productId) {
     await prisma.product.update({ where: { id: productId }, data: baseData });
-    // Reemplazamos imágenes (simple y consistente).
-    await prisma.productImage.deleteMany({ where: { productId } });
+    // Reemplazamos imágenes GENERALES (las de colores se manejan aparte).
+    await prisma.productImage.deleteMany({
+      where: { productId, colorId: null },
+    });
   } else {
     const created = await prisma.product.create({ data: baseData });
     productId = created.id;
   }
 
-  // Imágenes
+  // Imágenes generales (sin color)
   if (data.images.length) {
     await prisma.productImage.createMany({
       data: data.images.map((img, i) => ({
@@ -106,7 +120,7 @@ export async function saveProduct(input: ProductInput) {
     });
   }
 
-  // Variantes: upsert por id; borramos las que ya no están.
+  // Variantes generales (sin color): upsert por id; borrar las que ya no están.
   const keepIds: string[] = [];
   for (let i = 0; i < data.variants.length; i++) {
     const v = data.variants[i];
@@ -132,8 +146,56 @@ export async function saveProduct(input: ProductInput) {
     }
   }
   await prisma.productVariant.deleteMany({
-    where: { productId: productId!, id: { notIn: keepIds } },
+    where: { productId: productId!, colorId: null, id: { notIn: keepIds } },
   });
+
+  // Colores: borramos los existentes (con sus fotos/talles) y los recreamos.
+  const oldColors = await prisma.productColor.findMany({
+    where: { productId: productId! },
+    select: { id: true },
+  });
+  const oldColorIds = oldColors.map((c) => c.id);
+  if (oldColorIds.length) {
+    await prisma.productImage.deleteMany({
+      where: { colorId: { in: oldColorIds } },
+    });
+    await prisma.productVariant.deleteMany({
+      where: { colorId: { in: oldColorIds } },
+    });
+    await prisma.productColor.deleteMany({ where: { id: { in: oldColorIds } } });
+  }
+  for (let ci = 0; ci < data.colors.length; ci++) {
+    const c = data.colors[ci];
+    const color = await prisma.productColor.create({
+      data: { productId: productId!, name: c.name, hex: c.hex, sortOrder: ci },
+    });
+    if (c.images.length) {
+      await prisma.productImage.createMany({
+        data: c.images.map((img, i) => ({
+          productId: productId!,
+          colorId: color.id,
+          url: img.url,
+          alt: img.alt || `${data.name} ${c.name}`,
+          sortOrder: i,
+        })),
+      });
+    }
+    if (c.variants.length) {
+      await prisma.productVariant.createMany({
+        data: c.variants.map((v, i) => ({
+          productId: productId!,
+          colorId: color.id,
+          name: v.name,
+          sku:
+            (v.sku && v.sku.trim()) ||
+            `${slug}-${c.name}-${i}`.toUpperCase().replace(/\s+/g, ""),
+          price: v.price ?? null,
+          stock: v.stock,
+          sortOrder: i,
+        })),
+      });
+    }
+  }
 
   revalidatePath("/admin/productos");
   revalidatePath("/productos");

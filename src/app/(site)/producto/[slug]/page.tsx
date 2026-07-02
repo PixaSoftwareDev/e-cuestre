@@ -15,6 +15,8 @@ import { RecentTracker } from "@/components/site/recent-tracker";
 import { RecentlyViewed } from "@/components/site/recently-viewed";
 import { AddToCart } from "@/components/cart/add-to-cart";
 import { NotifyStock } from "@/components/site/notify-stock";
+import { ColorProduct } from "@/components/site/color-product";
+import { ProductReviews } from "@/components/site/product-reviews";
 import { BrandThemeProvider } from "@/components/site/brand-theme-provider";
 import { ProductCard } from "@/components/site/product-card";
 import { FavoriteButton } from "@/components/site/favorite-button";
@@ -114,6 +116,32 @@ export default async function ProductPage({
           / <span className="text-fg">{product.name}</span>
         </nav>
 
+        {product.colors.length > 0 ? (
+          <ColorProduct
+            id={product.id}
+            slug={product.slug}
+            name={product.name}
+            brandId={product.brandId}
+            brandName={product.brand.name}
+            brandSlug={product.brand.slug}
+            currency={product.currency}
+            basePrice={product.basePrice}
+            compareAtPrice={product.compareAtPrice}
+            description={product.description}
+            colors={product.colors.map((c) => ({
+              id: c.id,
+              name: c.name,
+              hex: c.hex,
+              images: c.images.map((i) => ({ url: i.url, alt: i.alt })),
+              variants: c.variants.map((v) => ({
+                id: v.id,
+                name: v.name,
+                price: v.price,
+                stock: v.stock,
+              })),
+            }))}
+          />
+        ) : (
         <div className="grid gap-10 md:grid-cols-2 md:gap-16">
           <ProductGallery
             images={product.images}
@@ -193,6 +221,7 @@ export default async function ProductPage({
             </div>
           </div>
         </div>
+        )}
 
         {/* ── Descripción y características ─────────────────────── */}
         <section className="mt-16 grid gap-10 border-t border-border pt-12 md:mt-20 md:grid-cols-2 md:gap-16">
@@ -250,6 +279,8 @@ export default async function ProductPage({
             )}
           </div>
         </section>
+
+        <ProductReviews productId={product.id} slug={product.slug} />
 
         {related.length > 0 && (
           <section className="mt-24">

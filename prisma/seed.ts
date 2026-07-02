@@ -112,6 +112,12 @@ async function main() {
     tags: string[];
     images: string[];
     variants: { name: string; stock: number; price?: number }[];
+    colors?: {
+      name: string;
+      hex: string;
+      images: string[];
+      variants: { name: string; stock: number }[];
+    }[];
   };
 
   const products: Seed[] = [
@@ -160,12 +166,30 @@ async function main() {
       price: 9900,
       featured: true,
       tags: ["indumentaria", "camisa"],
-      images: [img("camisa-1"), img("camisa-2"), img("camisa-3")],
-      variants: [
-        { name: "S", stock: 10 },
-        { name: "M", stock: 14 },
-        { name: "L", stock: 11 },
-        { name: "XL", stock: 5 },
+      // Las fotos y los talles vienen por color.
+      images: [],
+      variants: [],
+      colors: [
+        {
+          name: "Blanco",
+          hex: "#f3f2ec",
+          images: ["/seed/camisa-blanco-1.jpg", "/seed/camisa-blanco-2.jpg"],
+          variants: [
+            { name: "S", stock: 10 },
+            { name: "M", stock: 14 },
+            { name: "L", stock: 8 },
+          ],
+        },
+        {
+          name: "Azul",
+          hex: "#2b3a67",
+          images: ["/seed/camisa-azul-1.jpg", "/seed/camisa-azul-2.jpg"],
+          variants: [
+            { name: "S", stock: 6 },
+            { name: "M", stock: 9 },
+            { name: "L", stock: 0 },
+          ],
+        },
       ],
     },
     {
@@ -250,7 +274,7 @@ async function main() {
 
     // Borramos y recreamos para que el seed sea idempotente y consistente.
     await prisma.product.deleteMany({ where: { slug: p.slug } });
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: {
         slug: p.slug,
         name: p.name,
@@ -283,9 +307,94 @@ async function main() {
         },
       },
     });
+
+    // Colores: cada uno con sus fotos y sus talles (color × talle).
+    for (let ci = 0; ci < (p.colors?.length ?? 0); ci++) {
+      const c = p.colors![ci];
+      const color = await prisma.productColor.create({
+        data: { productId: product.id, name: c.name, hex: c.hex, sortOrder: ci },
+      });
+      await prisma.productImage.createMany({
+        data: c.images.map((url, idx) => ({
+          productId: product.id,
+          colorId: color.id,
+          url,
+          alt: `${p.name} ${c.name} ${idx + 1}`,
+          sortOrder: idx,
+        })),
+      });
+      await prisma.productVariant.createMany({
+        data: c.variants.map((v, idx) => ({
+          productId: product.id,
+          colorId: color.id,
+          sku: `${p.slug}-${c.name}-${idx}`.toUpperCase().replace(/\s+/g, ""),
+          name: v.name,
+          stock: v.stock,
+          sortOrder: idx,
+        })),
+      });
+    }
     count++;
   }
   console.log(`   ✔ ${count} productos`);
+
+  // ── Reseñas demo (aprobadas) ────────────────────────────
+  const reviewsBySlug: Record<
+    string,
+    {
+      rating: number;
+      title?: string;
+      comment?: string;
+      authorName: string;
+      verified: boolean;
+    }[]
+  > = {
+    "camisa-de-juego-clasica": [
+      {
+        rating: 5,
+        title: "Impecable",
+        comment: "La tela es hermosa y el corte queda perfecto. Muy recomendable.",
+        authorName: "Martín G.",
+        verified: true,
+      },
+      {
+        rating: 4,
+        comment: "Muy buena calidad, aunque el talle viene apenas justo.",
+        authorName: "Lucía R.",
+        verified: false,
+      },
+    ],
+    "cinto-de-polo-artesanal": [
+      {
+        rating: 5,
+        title: "Una obra de arte",
+        comment: "El trenzado a mano se nota. Vale cada peso.",
+        authorName: "Facundo P.",
+        verified: true,
+      },
+    ],
+  };
+  let reviewCount = 0;
+  for (const [slug, revs] of Object.entries(reviewsBySlug)) {
+    const prod = await prisma.product.findUnique({ where: { slug } });
+    if (!prod) continue;
+    await prisma.review.deleteMany({ where: { productId: prod.id } });
+    await prisma.review.createMany({
+      data: revs.map((r) => ({
+        productId: prod.id,
+        rating: r.rating,
+        title: r.title ?? null,
+        comment: r.comment ?? null,
+        authorName: r.authorName,
+        email: `${r.authorName.split(" ")[0].toLowerCase()}@example.com`,
+        verified: r.verified,
+        approved: true,
+      })),
+    });
+    reviewCount += revs.length;
+  }
+  console.log(`   ✔ ${reviewCount} reseñas`);
+
   console.log("✅ Seed completo.");
 }
 

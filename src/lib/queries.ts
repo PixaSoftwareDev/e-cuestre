@@ -5,6 +5,13 @@ import type { Prisma } from "@prisma/client";
 const productInclude = {
   images: { orderBy: { sortOrder: "asc" } },
   variants: { orderBy: { sortOrder: "asc" } },
+  colors: {
+    orderBy: { sortOrder: "asc" },
+    include: {
+      images: { orderBy: { sortOrder: "asc" } },
+      variants: { orderBy: { sortOrder: "asc" } },
+    },
+  },
   brand: true,
   category: true,
 } satisfies Prisma.ProductInclude;

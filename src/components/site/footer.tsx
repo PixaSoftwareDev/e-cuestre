@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { PaymentMethods } from "@/components/site/payment-methods";
 import { Logo } from "@/components/site/logo";
@@ -97,9 +98,21 @@ export async function Footer({
           <p>
             © {year} {siteName}. {t("footer.rights")}
           </p>
-          <div className="flex items-center gap-3">
-            <span>{t("footer.securePayments")}</span>
-            <PaymentMethods size={24} />
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <span className="flex items-center gap-2">
+              Envíos con
+              <Image
+                src="/dhl.png"
+                alt="DHL"
+                width={64}
+                height={14}
+                className="h-3.5 w-auto rounded-[2px]"
+              />
+            </span>
+            <span className="flex items-center gap-2">
+              {t("footer.securePayments")}
+              <PaymentMethods size={24} />
+            </span>
           </div>
         </div>
       </div>

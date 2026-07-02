@@ -12,9 +12,11 @@ import {
 } from "@paypal/react-paypal-js";
 import { useCart, cartSubtotal } from "@/store/cart";
 import { formatMoney } from "@/lib/money";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, Select } from "@/components/ui/input";
 import { PaymentMethods } from "@/components/site/payment-methods";
 import { Button } from "@/components/ui/button";
+import { COUNTRIES, DEFAULT_COUNTRY, findCountry } from "@/lib/countries";
+import { AR_CITIES } from "@/lib/ar-cities";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/track";
 
@@ -38,7 +40,7 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     zip: "",
-    country: "Argentina",
+    country: DEFAULT_COUNTRY,
   });
 
   useEffect(() => setMounted(true), []);
@@ -70,8 +72,13 @@ export default function CheckoutPage() {
     );
   }
 
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set =
+    (k: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const country = findCountry(form.country);
+  const phoneFull = form.phone ? `${country.dial} ${form.phone}` : undefined;
 
   async function payWithMP() {
     if (!formValid || mpLoading) return;
@@ -90,12 +97,12 @@ export default function CheckoutPage() {
           customer: {
             email: form.email,
             name: form.name,
-            phone: form.phone || undefined,
+            phone: phoneFull,
             address: {
               line1: form.address,
               city: form.city,
               zip: form.zip,
-              country: form.country,
+              country: country.name,
             },
           },
         }),
@@ -146,24 +153,72 @@ export default function CheckoutPage() {
               <Input id="name" value={form.name} onChange={set("name")} />
             </div>
             <div>
-              <Label htmlFor="phone">Teléfono</Label>
-              <Input id="phone" value={form.phone} onChange={set("phone")} />
+              <Label htmlFor="country">País</Label>
+              <Select
+                id="country"
+                value={form.country}
+                onChange={set("country")}
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name} ({c.dial})
+                  </option>
+                ))}
+              </Select>
             </div>
             <div>
-              <Label htmlFor="country">País</Label>
-              <Input id="country" value={form.country} onChange={set("country")} />
+              <Label htmlFor="phone">Teléfono</Label>
+              <div className="flex">
+                <span className="inline-flex items-center rounded-l-brand border border-r-0 border-border bg-fg/5 px-3 text-sm text-muted">
+                  {country.dial}
+                </span>
+                <Input
+                  id="phone"
+                  value={form.phone}
+                  onChange={set("phone")}
+                  inputMode="tel"
+                  placeholder="11 2345 6789"
+                  className="rounded-l-none"
+                />
+              </div>
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="address">Dirección</Label>
-              <Input id="address" value={form.address} onChange={set("address")} />
+              <Input
+                id="address"
+                value={form.address}
+                onChange={set("address")}
+                autoComplete="street-address"
+                placeholder="Calle y número"
+              />
             </div>
             <div>
               <Label htmlFor="city">Ciudad</Label>
-              <Input id="city" value={form.city} onChange={set("city")} />
+              <Input
+                id="city"
+                value={form.city}
+                onChange={set("city")}
+                list={form.country === "AR" ? "ar-cities" : undefined}
+                autoComplete="address-level2"
+                placeholder="Empezá a escribir…"
+              />
+              {form.country === "AR" && (
+                <datalist id="ar-cities">
+                  {AR_CITIES.map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
+              )}
             </div>
             <div>
               <Label htmlFor="zip">Código postal</Label>
-              <Input id="zip" value={form.zip} onChange={set("zip")} />
+              <Input
+                id="zip"
+                value={form.zip}
+                onChange={set("zip")}
+                autoComplete="postal-code"
+                inputMode="numeric"
+              />
             </div>
           </div>
         </div>
@@ -250,12 +305,12 @@ export default function CheckoutPage() {
                           customer: {
                             email: form.email,
                             name: form.name,
-                            phone: form.phone || undefined,
+                            phone: phoneFull,
                             address: {
                               line1: form.address,
                               city: form.city,
                               zip: form.zip,
-                              country: form.country,
+                              country: country.name,
                             },
                           },
                         }),
@@ -367,9 +422,16 @@ export default function CheckoutPage() {
         </div>
 
         <div className="mt-6 space-y-2 border-t border-border pt-4 text-xs text-muted">
-          <p className="flex items-center gap-2">
+          <p className="flex flex-wrap items-center gap-2">
             <Truck className="h-4 w-4" strokeWidth={1.5} /> Envío con seguimiento
-            a todo el país.
+            por
+            <Image
+              src="/dhl.png"
+              alt="DHL"
+              width={64}
+              height={14}
+              className="h-3.5 w-auto rounded-[2px]"
+            />
           </p>
           <p className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4" strokeWidth={1.5} /> Compra protegida

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Jost, Inter } from "next/font/google";
-import { ViewTransitions } from "next-view-transitions";
 import { getLocale } from "@/lib/i18n/server";
 import { I18nProvider } from "@/components/i18n-provider";
 import "./globals.css";
@@ -65,9 +64,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ViewTransitions>
-          <I18nProvider locale={locale}>{children}</I18nProvider>
-        </ViewTransitions>
+        <I18nProvider locale={locale}>{children}</I18nProvider>
       </body>
     </html>
   );

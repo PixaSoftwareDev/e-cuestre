@@ -256,6 +256,23 @@ html.dark {
   .animate-scroll-cue {
     animation: scroll-cue 2s var(--ease-smooth) infinite;
   }
+
+  /* Marquee: tira de logos que se desliza en loop continuo. */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee 45s linear infinite;
+    will-change: transform;
+  }
+  .marquee-pause:hover .animate-marquee {
+    animation-play-state: paused;
+  }
 }
 
 /* Duración/easing de las View Transitions (imagen que vuela card → ficha). */
@@ -273,6 +290,7 @@ html.dark {
   .hover-lift,
   .skeleton,
   .animate-scroll-cue,
+  .animate-marquee,
   .animate-rise {
     animation: none !important;
     transition: none !important;

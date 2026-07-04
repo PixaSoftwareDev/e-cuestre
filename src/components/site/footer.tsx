@@ -17,7 +17,7 @@ export async function Footer({
   const year = 2026;
   const t = await getT();
   return (
-    <footer className="mt-20 border-t border-border bg-card md:mt-32">
+    <footer className="border-t border-border bg-card">
       <div className="container-page py-12 md:py-20">
         <div className="grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-[1.6fr_1fr_1fr_1.4fr] md:gap-12">
           {/* Marca */}
@@ -90,7 +90,6 @@ export async function Footer({
             </form>
           </div>
         </div>
-
       </div>
 
       <div className="border-t border-border">

@@ -58,7 +58,7 @@ export function SiteHero({
             className="object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-primary" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-black" />
         )}
       </motion.div>
 

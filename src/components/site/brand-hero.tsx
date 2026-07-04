@@ -7,10 +7,12 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 /** Hero de la página de marca: parallax leve + entrada escalonada del texto. */
 export function BrandHero({
   imageUrl,
+  logoUrl,
   name,
   tagline,
 }: {
   imageUrl?: string | null;
+  logoUrl?: string | null;
   name: string;
   tagline?: string | null;
 }) {
@@ -65,12 +67,28 @@ export function BrandHero({
         transition={{ staggerChildren: 0.14, delayChildren: 0.1 }}
         className="container-page relative z-10 pb-16 text-white"
       >
-        <motion.p variants={item} className="kicker mb-3 text-white/70">
-          Nuestra casa
+        <motion.p variants={item} className="kicker mb-4 text-white/70">
+          Ecuestre presenta
         </motion.p>
-        <motion.h1 variants={item} className="font-heading text-4xl md:text-6xl">
-          {name}
-        </motion.h1>
+        {logoUrl ? (
+          <motion.div variants={item}>
+            <Image
+              src={logoUrl}
+              alt={name}
+              width={280}
+              height={213}
+              className="h-24 w-auto brightness-0 invert drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] md:h-32"
+            />
+            <h1 className="sr-only">{name}</h1>
+          </motion.div>
+        ) : (
+          <motion.h1
+            variants={item}
+            className="font-heading text-4xl md:text-6xl"
+          >
+            {name}
+          </motion.h1>
+        )}
         {tagline && (
           <motion.p
             variants={item}

@@ -29,6 +29,9 @@ const es: Dict = {
   "home.brands.title": "Un diseño distinto para cada mundo.",
   "home.brands.subtitle":
     "Cada marca tiene su propia identidad visual. La experiencia se adapta al rubro sin perder la elegancia.",
+  "home.brands.discover": "Descubrir la marca",
+  "home.brandStrip.title": "Firmas que reunimos",
+  "home.brandStrip.heading": "Marcas que elegimos",
   "home.values.materials.title": "Materiales nobles",
   "home.values.materials.desc":
     "Cueros vegetales, metales macizos y textiles seleccionados. Nada superfluo.",
@@ -113,6 +116,9 @@ const en: Dict = {
   "home.brands.title": "A distinct design for every world.",
   "home.brands.subtitle":
     "Each brand has its own visual identity. The experience adapts to the category without losing elegance.",
+  "home.brands.discover": "Discover the brand",
+  "home.brandStrip.title": "The houses we gather",
+  "home.brandStrip.heading": "Brands we choose",
   "home.values.materials.title": "Noble materials",
   "home.values.materials.desc":
     "Vegetable-tanned leathers, solid metals and selected textiles. Nothing superfluous.",
@@ -191,6 +197,9 @@ const de: Dict = {
   "home.brands.title": "Ein eigenes Design für jede Welt.",
   "home.brands.subtitle":
     "Jede Marke hat ihre eigene visuelle Identität. Das Erlebnis passt sich an, ohne die Eleganz zu verlieren.",
+  "home.brands.discover": "Die Marke entdecken",
+  "home.brandStrip.title": "Die Marken, die wir vereinen",
+  "home.brandStrip.heading": "Marken, die wir wählen",
   "home.values.materials.title": "Edle Materialien",
   "home.values.materials.desc":
     "Pflanzlich gegerbtes Leder, massive Metalle und ausgewählte Textilien. Nichts Überflüssiges.",

@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
   turbopack: { root: import.meta.dirname },
   outputFileTracingRoot: import.meta.dirname,
   images: {
+    // Cloudinary y Unsplash ya sirven las imágenes optimizadas/transformadas,
+    // así que evitamos que Next las vuelva a optimizar (esa re-optimización
+    // hacía timeout contra Cloudinary y saturaba el dev server).
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "plus.unsplash.com" },

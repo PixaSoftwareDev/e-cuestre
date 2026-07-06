@@ -46,12 +46,19 @@ export async function verifySession(
   }
 }
 
+// La cookie `secure` solo viaja por HTTPS. Se activa según el esquema real del
+// sitio (NEXT_PUBLIC_SITE_URL), no según NODE_ENV: así funciona en un VPS que
+// aún sirve por HTTP y queda segura automáticamente cuando haya HTTPS.
+const COOKIE_SECURE = (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith(
+  "https",
+);
+
 /** Setea la cookie de sesión (usar dentro de un Server Action / Route Handler). */
 export async function setSessionCookie(token: string) {
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: COOKIE_SECURE,
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,

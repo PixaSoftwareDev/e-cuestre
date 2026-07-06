@@ -16,6 +16,7 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { PaymentMethods } from "@/components/site/payment-methods";
 import { Button } from "@/components/ui/button";
 import { COUNTRIES, DEFAULT_COUNTRY, findCountry } from "@/lib/countries";
+import { withBasePath } from "@/lib/base-path";
 import { CityCombobox } from "@/components/site/city-combobox";
 import { cn } from "@/lib/utils";
 import { track } from "@/lib/track";
@@ -425,7 +426,7 @@ export default function CheckoutPage() {
             <Truck className="h-4 w-4" strokeWidth={1.5} /> Envío con seguimiento
             por
             <Image
-              src="/dhl.png"
+              src={withBasePath("/dhl.png")}
               alt="DHL"
               width={64}
               height={14}

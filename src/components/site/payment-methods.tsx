@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { withBasePath } from "@/lib/base-path";
 
 const METHODS = [
   { src: "/payments/mercadopago.png", alt: "Mercado Pago" },
@@ -23,7 +24,7 @@ export function PaymentMethods({
       {METHODS.map((m) => (
         <Image
           key={m.alt}
-          src={m.src}
+          src={withBasePath(m.src)}
           alt={m.alt}
           title={m.alt}
           width={w}

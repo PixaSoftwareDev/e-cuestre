@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { PaymentMethods } from "@/components/site/payment-methods";
 import { Logo } from "@/components/site/logo";
 import { getT } from "@/lib/i18n/server";
+import { withBasePath } from "@/lib/base-path";
 
 type FooterBrand = { slug: string; name: string };
 
@@ -101,7 +102,7 @@ export async function Footer({
             <span className="flex items-center gap-2">
               Envíos con
               <Image
-                src="/dhl.png"
+                src={withBasePath("/dhl.png")}
                 alt="DHL"
                 width={64}
                 height={14}

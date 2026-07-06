@@ -10,6 +10,9 @@ import { ScrollProgress } from "@/components/site/scroll-progress";
 import { AnalyticsTracker } from "@/components/site/analytics-tracker";
 import { getBrands } from "@/lib/queries";
 
+// El nav/footer leen marcas de la DB: render en runtime, no en build.
+export const dynamic = "force-dynamic";
+
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Ecuestre";
 
 export default async function SiteLayout({

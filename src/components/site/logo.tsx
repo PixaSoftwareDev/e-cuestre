@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * Logo de marca (imagen + "E-cuestre"). Server-safe.
@@ -20,7 +21,7 @@ export function Logo({
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <Image
-        src="/logo-negro.png"
+        src={withBasePath("/logo-negro.png")}
         alt="Ecuestre"
         width={48}
         height={46}
@@ -28,7 +29,7 @@ export function Logo({
         className={cn("w-auto dark:hidden", imgClassName)}
       />
       <Image
-        src="/logo-blanco.png"
+        src={withBasePath("/logo-blanco.png")}
         alt=""
         aria-hidden
         width={48}

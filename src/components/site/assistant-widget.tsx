@@ -9,6 +9,7 @@ import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/store/cart";
 import { useSearch } from "@/store/search";
+import { withBasePath } from "@/lib/base-path";
 
 type Suggestion = {
   name: string;
@@ -84,7 +85,7 @@ export function AssistantWidget() {
     setInput("");
     setLoading(true);
     try {
-      const res = await fetch("/api/assistant", {
+      const res = await fetch(withBasePath("/api/assistant"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

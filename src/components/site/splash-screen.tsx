@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * Intro de carga: logo centrado con entrada (blur → nítido + escala), barra de
@@ -41,7 +42,7 @@ export function SplashScreen() {
             className="flex flex-col items-center"
           >
             <Image
-              src="/logo-negro.png"
+              src={withBasePath("/logo-negro.png")}
               alt="Ecuestre"
               width={140}
               height={134}
@@ -50,7 +51,7 @@ export function SplashScreen() {
               className="h-24 w-auto md:h-28 dark:hidden"
             />
             <Image
-              src="/logo-blanco.png"
+              src={withBasePath("/logo-blanco.png")}
               alt="Ecuestre"
               width={140}
               height={134}

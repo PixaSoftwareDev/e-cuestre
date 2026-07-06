@@ -1,6 +1,7 @@
 "use client";
 
 import type { TrackEvent } from "@/lib/analytics";
+import { withBasePath } from "@/lib/base-path";
 
 const SESSION_KEY = "ecuestre_sid";
 
@@ -42,9 +43,9 @@ export function track(
   const body = JSON.stringify({ events: [payload] });
   // sendBeacon sobrevive a la navegación; fetch como fallback.
   if (navigator.sendBeacon) {
-    navigator.sendBeacon("/api/analytics", body);
+    navigator.sendBeacon(withBasePath("/api/analytics"), body);
   } else {
-    fetch("/api/analytics", {
+    fetch(withBasePath("/api/analytics"), {
       method: "POST",
       body,
       headers: { "Content-Type": "application/json" },

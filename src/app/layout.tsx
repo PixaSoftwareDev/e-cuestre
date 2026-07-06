@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { Jost, Inter } from "next/font/google";
 import { getLocale } from "@/lib/i18n/server";
 import { I18nProvider } from "@/components/i18n-provider";
+import { withBasePath } from "@/lib/base-path";
 import "./globals.css";
 
 const jost = Jost({
@@ -37,10 +38,10 @@ export const metadata: Metadata = {
   icons: {
     // Silueta negra en navegador claro, blanca en navegador oscuro.
     icon: [
-      { url: "/favicon-negro.png", media: "(prefers-color-scheme: light)" },
-      { url: "/favicon-blanco.png", media: "(prefers-color-scheme: dark)" },
+      { url: withBasePath("/favicon-negro.png"), media: "(prefers-color-scheme: light)" },
+      { url: withBasePath("/favicon-blanco.png"), media: "(prefers-color-scheme: dark)" },
     ],
-    apple: "/apple-icon.png",
+    apple: withBasePath("/apple-icon.png"),
   },
 };
 

@@ -14,6 +14,7 @@ import { LanguageSwitcher } from "@/components/site/language-switcher";
 import { MenuToggle } from "@/components/site/menu-toggle";
 import { useSearch } from "@/store/search";
 import { useT } from "@/components/i18n-provider";
+import { withBasePath } from "@/lib/base-path";
 
 type NavBrand = { slug: string; name: string };
 
@@ -81,7 +82,7 @@ export function Navbar({
         >
           {overlay ? (
             <Image
-              src="/logo-blanco.png"
+              src={withBasePath("/logo-blanco.png")}
               alt=""
               width={60}
               height={57}
@@ -92,7 +93,7 @@ export function Navbar({
           ) : (
             <>
               <Image
-                src="/logo-negro.png"
+                src={withBasePath("/logo-negro.png")}
                 alt=""
                 width={60}
                 height={57}
@@ -101,7 +102,7 @@ export function Navbar({
                 className="h-10 w-auto md:h-12 transition-transform duration-300 ease-[var(--ease-smooth)] group-hover:scale-110 dark:hidden"
               />
               <Image
-                src="/logo-blanco.png"
+                src={withBasePath("/logo-blanco.png")}
                 alt=""
                 width={60}
                 height={57}

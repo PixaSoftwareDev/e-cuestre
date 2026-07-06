@@ -49,9 +49,10 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 # Prisma CLI + engines + migraciones, para correr `migrate deploy` al arrancar.
+# (El cliente generado —.prisma— ya viene traceado dentro de .next/standalone;
+#  con pnpm no queda en node_modules/.prisma, así que no se copia por separado.)
 COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
 COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/prisma ./prisma
 COPY docker/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh

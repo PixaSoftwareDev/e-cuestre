@@ -31,6 +31,7 @@ services:
         NEXT_PUBLIC_PAYPAL_CURRENCY: ${NEXT_PUBLIC_PAYPAL_CURRENCY}
         NEXT_PUBLIC_SESSION_RECORDING: ${NEXT_PUBLIC_SESSION_RECORDING}
         NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
+        NEXT_PUBLIC_QUICK_LOGIN: ${NEXT_PUBLIC_QUICK_LOGIN}
     container_name: ecuestre-app
     restart: unless-stopped
     profiles: ["prod"]

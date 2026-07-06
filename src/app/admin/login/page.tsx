@@ -95,7 +95,8 @@ export default function AdminLoginPage({
             {pending ? "Ingresando…" : "Ingresar"}
           </Button>
 
-          {process.env.NODE_ENV !== "production" && (
+          {(process.env.NODE_ENV !== "production" ||
+            process.env.NEXT_PUBLIC_QUICK_LOGIN === "on") && (
             <Button
               type="button"
               variant="outline"

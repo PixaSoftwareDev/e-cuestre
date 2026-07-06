@@ -69,8 +69,9 @@ export default async function ProductosPage({
       <div className="grid gap-8 lg:grid-cols-[248px_1fr] lg:gap-12">
         {/* ── Sidebar de filtros ─────────────────────────────── */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          {/* En móvil se pliega con <details> nativo (sin JS). */}
-          <details className="group/f" open>
+          {/* En móvil se pliega con <details> nativo (sin JS). En desktop
+              el contenido se fuerza visible vía CSS (.filters-panel). */}
+          <details className="filters-panel group/f">
             <summary className="flex cursor-pointer list-none items-center justify-between border-b border-border pb-4 lg:cursor-default">
               <span className="font-heading text-lg">Filtros</span>
               {hasFilters && (

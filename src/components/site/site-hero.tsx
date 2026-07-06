@@ -10,10 +10,12 @@ import { useT } from "@/components/i18n-provider";
 
 export function SiteHero({
   imageUrl,
+  videoUrl,
   brandSlug,
   brandName,
 }: {
   imageUrl?: string | null;
+  videoUrl?: string | null;
   brandSlug?: string;
   brandName?: string;
 }) {
@@ -46,9 +48,23 @@ export function SiteHero({
       ref={ref}
       className="relative flex min-h-[92vh] items-end overflow-hidden"
     >
-      {/* Imagen con parallax (capa un poco más grande para no dejar bordes) */}
+      {/* Imagen/video con parallax (capa un poco más grande para no dejar bordes) */}
       <motion.div style={{ y: imgY }} className="absolute inset-[-7%_0_-7%_0]">
-        {imageUrl ? (
+        {videoUrl ? (
+          <motion.video
+            initial={{ opacity: 0, scale: reduce ? 1 : 1.06 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={imageUrl ?? undefined}
+            className="h-full w-full object-cover object-[center_55%]"
+          >
+            <source src={videoUrl} type="video/mp4" />
+          </motion.video>
+        ) : imageUrl ? (
           <Image
             src={imageUrl}
             alt=""

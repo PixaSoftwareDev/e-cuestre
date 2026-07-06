@@ -296,3 +296,18 @@ html.dark {
     transition: none !important;
   }
 }
+
+/* Filtros de la tienda: colapsados en móvil (<details>), siempre abiertos en
+   desktop. En ≥lg se fuerza el contenido visible y el summary no interactivo. */
+@media (min-width: 1024px) {
+  .filters-panel:not([open]) > :not(summary) {
+    display: block;
+  }
+  .filters-panel > summary {
+    pointer-events: none;
+  }
+  .filters-panel > summary::-webkit-details-marker,
+  .filters-panel > summary::marker {
+    display: none;
+  }
+}

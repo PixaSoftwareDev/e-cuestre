@@ -47,3 +47,4 @@ next-env.d.ts
 # Subidas de usuarios (no versionar)
 /public/uploads/*
 !/public/uploads/.gitkeep
+.playwright-mcp/

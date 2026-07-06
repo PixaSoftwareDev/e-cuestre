@@ -35,8 +35,11 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ── HERO: la casa (Ecuestre) ── */}
-      <SiteHero imageUrl="https://res.cloudinary.com/dukv3ov6t/image/upload/v1783296082/hawsrvxet7sy8odgi74m.jpg" />
+      {/* ── HERO: la casa (Ecuestre) — video de caballos ── */}
+      <SiteHero
+        imageUrl="https://res.cloudinary.com/dukv3ov6t/image/upload/v1783296082/hawsrvxet7sy8odgi74m.jpg"
+        videoUrl="https://res.cloudinary.com/dukv3ov6t/video/upload/v1783336741/ygy6ap8ahh04wrjonljr.mp4"
+      />
 
       {/* ── OFERTAS: promocional (manejable desde el admin) ─── */}
       {offers.length > 0 && (

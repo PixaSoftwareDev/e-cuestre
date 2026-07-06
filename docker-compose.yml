@@ -7,8 +7,9 @@ services:
       POSTGRES_USER: ecuestre
       POSTGRES_PASSWORD: ecuestre
       POSTGRES_DB: ecuestre
+    # Solo accesible localmente. Puerto configurable para no chocar en el VPS.
     ports:
-      - "5435:5432"
+      - "127.0.0.1:${DB_PORT:-5435}:5432"
     volumes:
       - ecuestre-db-data:/var/lib/postgresql/data
     healthcheck:
@@ -29,6 +30,7 @@ services:
         NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${NEXT_PUBLIC_PAYPAL_CLIENT_ID}
         NEXT_PUBLIC_PAYPAL_CURRENCY: ${NEXT_PUBLIC_PAYPAL_CURRENCY}
         NEXT_PUBLIC_SESSION_RECORDING: ${NEXT_PUBLIC_SESSION_RECORDING}
+        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
     container_name: ecuestre-app
     restart: unless-stopped
     profiles: ["prod"]
@@ -43,8 +45,9 @@ services:
     volumes:
       # Persiste las imágenes subidas desde el admin.
       - ecuestre-uploads:/app/public/uploads
+    # Solo local; Nginx del host hace de reverse proxy hacia este puerto.
     ports:
-      - "3000:3000"
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
 
 volumes:
   ecuestre-db-data:

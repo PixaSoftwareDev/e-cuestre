@@ -32,6 +32,10 @@ const es: Dict = {
   "home.brands.discover": "Descubrir la marca",
   "home.brandStrip.title": "Firmas que reunimos",
   "home.brandStrip.heading": "Marcas que elegimos",
+  "home.offers.kicker": "Ofertas",
+  "home.offers.title": "Precios especiales",
+  "home.offers.upTo": "Hasta",
+  "home.offers.viewShop": "Ver la tienda",
   "home.values.materials.title": "Materiales nobles",
   "home.values.materials.desc":
     "Cueros vegetales, metales macizos y textiles seleccionados. Nada superfluo.",
@@ -119,6 +123,10 @@ const en: Dict = {
   "home.brands.discover": "Discover the brand",
   "home.brandStrip.title": "The houses we gather",
   "home.brandStrip.heading": "Brands we choose",
+  "home.offers.kicker": "Offers",
+  "home.offers.title": "Special prices",
+  "home.offers.upTo": "Up to",
+  "home.offers.viewShop": "View shop",
   "home.values.materials.title": "Noble materials",
   "home.values.materials.desc":
     "Vegetable-tanned leathers, solid metals and selected textiles. Nothing superfluous.",
@@ -200,6 +208,10 @@ const de: Dict = {
   "home.brands.discover": "Die Marke entdecken",
   "home.brandStrip.title": "Die Marken, die wir vereinen",
   "home.brandStrip.heading": "Marken, die wir wählen",
+  "home.offers.kicker": "Angebote",
+  "home.offers.title": "Sonderpreise",
+  "home.offers.upTo": "Bis zu",
+  "home.offers.viewShop": "Zum Shop",
   "home.values.materials.title": "Edle Materialien",
   "home.values.materials.desc":
     "Pflanzlich gegerbtes Leder, massive Metalle und ausgewählte Textilien. Nichts Überflüssiges.",

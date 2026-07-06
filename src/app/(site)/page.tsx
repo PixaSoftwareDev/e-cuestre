@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Gem, Infinity as InfinityIcon, ShieldCheck } from "lucide-react";
-import { getBrands, getFeaturedProducts } from "@/lib/queries";
+import { ArrowRight } from "lucide-react";
+import { getBrands, getOffers, productFromPrice } from "@/lib/queries";
 import { ProductCard } from "@/components/site/product-card";
 import { Reveal } from "@/components/site/reveal";
 import { SiteHero } from "@/components/site/site-hero";
@@ -9,37 +9,73 @@ import { RecentlyViewed } from "@/components/site/recently-viewed";
 import { getT } from "@/lib/i18n/server";
 
 export default async function HomePage() {
-  const [brands, featured, t] = await Promise.all([
+  const [brands, offers, t] = await Promise.all([
     getBrands(),
-    getFeaturedProducts(4),
+    getOffers(8),
     getT(),
   ]);
 
-  const [lead, ...rest] = brands;
   const brandsWithLogo = brands.filter((b) => b.logoUrl);
 
+  // Descuento máximo entre las ofertas (para el sello "Hasta −X%").
+  const maxDiscount = offers.reduce((max, p) => {
+    const price = productFromPrice(p);
+    const d =
+      p.compareAtPrice && p.compareAtPrice > price
+        ? Math.round((1 - price / p.compareAtPrice) * 100)
+        : 0;
+    return Math.max(max, d);
+  }, 0);
+
   const values = [
-    {
-      icon: Gem,
-      t: t("home.values.materials.title"),
-      d: t("home.values.materials.desc"),
-    },
-    {
-      icon: InfinityIcon,
-      t: t("home.values.lasting.title"),
-      d: t("home.values.lasting.desc"),
-    },
-    {
-      icon: ShieldCheck,
-      t: t("home.values.secure.title"),
-      d: t("home.values.secure.desc"),
-    },
+    { t: t("home.values.materials.title"), d: t("home.values.materials.desc") },
+    { t: t("home.values.lasting.title"), d: t("home.values.lasting.desc") },
+    { t: t("home.values.secure.title"), d: t("home.values.secure.desc") },
   ];
 
   return (
     <div>
-      {/* ── HERO: la casa (Ecuestre) — genérico, sin foto de marca ── */}
-      <SiteHero />
+      {/* ── HERO: la casa (Ecuestre) ── */}
+      <SiteHero imageUrl="https://res.cloudinary.com/dukv3ov6t/image/upload/v1783296082/hawsrvxet7sy8odgi74m.jpg" />
+
+      {/* ── OFERTAS: promocional (manejable desde el admin) ─── */}
+      {offers.length > 0 && (
+        <section className="bg-card py-20 md:py-28">
+          <div className="container-page">
+            <Reveal>
+              <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <p className="kicker text-accent">{t("home.offers.kicker")}</p>
+                    {maxDiscount > 0 && (
+                      <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent">
+                        {t("home.offers.upTo")} −{maxDiscount}%
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="mt-2 font-heading text-3xl md:text-4xl">
+                    {t("home.offers.title")}
+                  </h2>
+                </div>
+                <Link
+                  href="/productos"
+                  className="hidden items-center gap-1.5 text-sm transition-colors hover:text-primary md:inline-flex"
+                >
+                  {t("home.offers.viewShop")}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
+              {offers.slice(0, 4).map((p, i) => (
+                <Reveal key={p.id} delay={(i % 4) * 0.06} y={18}>
+                  <ProductCard product={p} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── MARCAS: protagonista ─────────────────────────── */}
       {brands.length > 0 && (
@@ -54,123 +90,81 @@ export default async function HomePage() {
             </p>
           </Reveal>
 
-          {/* Marca destacada (grande) */}
-          {lead && (
-            <Reveal>
-              <Link
-                href={`/marca/${lead.slug}`}
-                className="group relative mt-10 block aspect-[4/5] overflow-hidden rounded-brand sm:aspect-[16/10] md:aspect-[16/9]"
-              >
-                {lead.heroImageUrl ? (
-                  <Image
-                    src={lead.heroImageUrl}
-                    alt={lead.name}
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 1200px"
-                    className="object-cover object-[center_25%] transition-transform duration-700 ease-[var(--ease-smooth)] group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-primary" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                <div className="absolute inset-0 flex flex-col justify-end p-8 text-white md:p-12">
-                  <h3 className="font-heading text-3xl md:text-5xl">
-                    {lead.name}
-                  </h3>
-                  {lead.tagline && (
-                    <p className="mt-3 max-w-md text-white/85">{lead.tagline}</p>
+          {/* Las 3 marcas en fila, con el logo sobre la foto */}
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {brands.map((b, i) => (
+              <Reveal key={b.id} delay={i * 0.1}>
+                <Link
+                  href={`/marca/${b.slug}`}
+                  className="group relative block aspect-[4/5] overflow-hidden rounded-brand"
+                >
+                  {b.heroImageUrl ? (
+                    <Image
+                      src={b.heroImageUrl}
+                      alt={b.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover object-[center_25%] transition-transform duration-700 ease-[var(--ease-smooth)] group-hover:scale-[1.06]"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-primary" />
                   )}
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium">
-                    {t("home.brands.discover")}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </div>
-              </Link>
-            </Reveal>
-          )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/55 transition-opacity duration-500 group-hover:opacity-75" />
 
-          {/* Resto de las marcas */}
-          {rest.length > 0 && (
-            <div className="mt-6 grid gap-6 md:grid-cols-3">
-              {rest.map((b, i) => (
-                <Reveal key={b.id} delay={i * 0.08}>
-                  <Link
-                    href={`/marca/${b.slug}`}
-                    className="group relative block aspect-[3/4] overflow-hidden rounded-brand"
-                  >
-                    {b.heroImageUrl ? (
+                  {/* Logo centrado */}
+                  <div className="absolute inset-x-0 top-0 flex h-[62%] items-center justify-center p-6">
+                    {b.logoUrl ? (
                       <Image
-                        src={b.heroImageUrl}
+                        src={b.logoUrl}
                         alt={b.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover transition-transform duration-700 ease-[var(--ease-smooth)] group-hover:scale-105"
+                        width={240}
+                        height={96}
+                        className="h-16 w-auto brightness-0 invert drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)] transition-transform duration-500 group-hover:scale-105 md:h-20"
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-primary" />
+                      <h3 className="font-heading text-3xl text-white">
+                        {b.name}
+                      </h3>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    <div className="absolute bottom-0 p-6 text-white">
-                      <h3 className="font-heading text-2xl">{b.name}</h3>
-                      {b.tagline && (
-                        <p className="mt-1 text-sm text-white/80">{b.tagline}</p>
-                      )}
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+                  </div>
 
-      {/* ── UNA SELECCIÓN (productos, secundario) ─────────── */}
-      {featured.length > 0 && (
-        <section className="bg-card py-20 md:py-28">
-          <div className="container-page">
-            <Reveal>
-              <div className="mb-10 flex items-end justify-between">
-                <div>
-                  <p className="kicker text-accent">
-                    {t("home.featured.kicker")}
-                  </p>
-                  <h2 className="mt-2 font-heading text-3xl md:text-4xl">
-                    {t("home.featured.title")}
-                  </h2>
-                </div>
-                <Link
-                  href="/productos"
-                  className="hidden items-center gap-1 text-sm hover:text-primary md:inline-flex"
-                >
-                  {t("home.viewAll")} <ArrowRight className="h-4 w-4" />
+                  {/* Tagline + CTA abajo */}
+                  <div className="absolute inset-x-0 bottom-0 p-6 text-center text-white">
+                    {b.tagline && (
+                      <p className="text-sm leading-snug text-white/85">
+                        {b.tagline}
+                      </p>
+                    )}
+                    <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-white/90 transition-all group-hover:gap-2.5">
+                      {t("home.brands.discover")}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
                 </Link>
-              </div>
-            </Reveal>
-            <div className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
-              {featured.map((p, i) => (
-                <Reveal key={p.id} delay={(i % 4) * 0.06}>
-                  <ProductCard product={p} />
-                </Reveal>
-              ))}
-            </div>
+              </Reveal>
+            ))}
           </div>
         </section>
       )}
 
+
       {/* ── SEGUÍ EXPLORANDO (personalizado) ─────────────── */}
       <RecentlyViewed title={t("home.keepExploring")} />
 
-      {/* ── VALORES: por qué Ecuestre ────────────────────── */}
-      <section className="container-page py-20 md:py-28">
-        <div className="grid gap-6 md:grid-cols-3">
+      {/* ── VALORES: por qué Ecuestre (editorial) ────────── */}
+      <section className="border-y border-border bg-card">
+        <div className="container-page grid gap-12 py-16 md:grid-cols-3 md:gap-0 md:py-20">
           {values.map((v, i) => (
-            <Reveal key={v.t} delay={i * 0.08}>
-              <div className="group h-full rounded-brand border border-border bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[var(--shadow-lift)]">
-                <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-primary-fg">
-                  <v.icon className="h-6 w-6" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-heading text-xl">{v.t}</h3>
+            <Reveal key={v.t} delay={i * 0.1}>
+              <div
+                className={`h-full ${
+                  i > 0 ? "md:border-l md:border-border md:pl-12" : "md:pr-12"
+                }`}
+              >
+                <span className="font-heading text-6xl leading-none text-accent/30">
+                  0{i + 1}
+                </span>
+                <h3 className="mt-7 font-heading text-xl">{v.t}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{v.d}</p>
               </div>
             </Reveal>

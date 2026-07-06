@@ -89,14 +89,6 @@ export function BrandHero({
             {name}
           </motion.h1>
         )}
-        {tagline && (
-          <motion.p
-            variants={item}
-            className="mt-3 max-w-xl text-lg text-white/85"
-          >
-            {tagline}
-          </motion.p>
-        )}
       </motion.div>
     </section>
   );

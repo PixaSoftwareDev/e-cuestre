@@ -55,18 +55,20 @@ export function SiteHero({
             fill
             priority
             sizes="100vw"
-            className="object-cover"
+            className="object-cover object-[center_40%]"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-black" />
         )}
       </motion.div>
 
-      {/* Degradado para legibilidad */}
+      {/* Degradado para legibilidad (texto abajo) */}
       <motion.div
         style={{ opacity: overlayOpacity }}
         className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10"
       />
+      {/* Degradado superior: da fondo prolijo al navbar transparente */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/45 to-transparent" />
 
       <motion.div
         variants={container}

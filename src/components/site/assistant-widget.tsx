@@ -25,6 +25,40 @@ const WELCOME: Msg = {
     "¡Hola! Soy tu asesor de estilo. Contame qué buscás y te ayudo a elegir la pieza justa.",
 };
 
+/** Convierte **negritas** en <strong> dentro de una línea. */
+function renderInline(text: string, key: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((seg, i) =>
+    seg.startsWith("**") && seg.endsWith("**") && seg.length > 4 ? (
+      <strong key={`${key}-${i}`}>{seg.slice(2, -2)}</strong>
+    ) : (
+      <span key={`${key}-${i}`}>{seg}</span>
+    ),
+  );
+}
+
+/** Renderiza el texto del asistente respetando saltos de línea, viñetas y negritas. */
+function RichText({ text }: { text: string }) {
+  const lines = text.split("\n");
+  return (
+    <div className="space-y-1.5">
+      {lines.map((line, i) => {
+        if (line.trim() === "") return null;
+        const isBullet = /^\s*[-*•]\s+/.test(line);
+        if (isBullet) {
+          const content = line.replace(/^\s*[-*•]\s+/, "");
+          return (
+            <div key={i} className="flex gap-2">
+              <span className="mt-[3px] text-accent">•</span>
+              <span>{renderInline(content, `l${i}`)}</span>
+            </div>
+          );
+        }
+        return <p key={i}>{renderInline(line, `l${i}`)}</p>;
+      })}
+    </div>
+  );
+}
+
 export function AssistantWidget() {
   const router = useRouter();
   const cartOpen = useCart((s) => s.isOpen);
@@ -113,9 +147,6 @@ export function AssistantWidget() {
             )}
           </motion.span>
         </AnimatePresence>
-        {!open && (
-          <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-bg bg-emerald-400" />
-        )}
       </button>
 
       <AnimatePresence>
@@ -170,7 +201,11 @@ export function AssistantWidget() {
                           : "rounded-bl-sm bg-fg/5 text-fg",
                       )}
                     >
-                      {m.content}
+                      {m.role === "assistant" ? (
+                        <RichText text={m.content} />
+                      ) : (
+                        m.content
+                      )}
                     </div>
                   </div>
 

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
-import { getBrandBySlug, getBrands, getProducts } from "@/lib/queries";
+import { getBrandBySlug, getProducts } from "@/lib/queries";
 import { ProductCard } from "@/components/site/product-card";
 import { BrandThemeProvider } from "@/components/site/brand-theme-provider";
 import { BrandHero } from "@/components/site/brand-hero";
@@ -11,10 +11,9 @@ import { Reveal } from "@/components/site/reveal";
 import { Button } from "@/components/ui/button";
 import type { BrandTheme } from "@/lib/theme";
 
-export async function generateStaticParams() {
-  const brands = await getBrands();
-  return brands.map((b) => ({ brand: b.slug }));
-}
+// Render dinámico: evita que Next pre-genere estas páginas al arrancar (si la
+// DB tarda en el cold-start, cacheaba un 404). Rinde fresco en cada request.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

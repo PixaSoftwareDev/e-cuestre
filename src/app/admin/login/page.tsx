@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, use } from "react";
+import { useActionState, use, useRef } from "react";
 import { motion } from "motion/react";
 import { Lock } from "lucide-react";
 import { loginAction, type LoginState } from "../auth-actions";
@@ -18,6 +18,17 @@ export default function AdminLoginPage({
     loginAction,
     {},
   );
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const quickLogin = () => {
+    const f = formRef.current;
+    if (!f) return;
+    (f.elements.namedItem("email") as HTMLInputElement).value =
+      "admin@ecuestre.com";
+    (f.elements.namedItem("password") as HTMLInputElement).value =
+      "cambiame123";
+    f.requestSubmit();
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg px-6">
@@ -44,6 +55,7 @@ export default function AdminLoginPage({
         </div>
 
         <form
+          ref={formRef}
           action={action}
           className="space-y-4 rounded-2xl border border-border bg-card/80 p-7 shadow-[var(--shadow-lift)] backdrop-blur-sm"
         >
@@ -82,6 +94,18 @@ export default function AdminLoginPage({
           <Button type="submit" className="w-full" loading={pending}>
             {pending ? "Ingresando…" : "Ingresar"}
           </Button>
+
+          {process.env.NODE_ENV !== "production" && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={pending}
+              onClick={quickLogin}
+            >
+              Acceso rápido (demo)
+            </Button>
+          )}
         </form>
 
         <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-muted">

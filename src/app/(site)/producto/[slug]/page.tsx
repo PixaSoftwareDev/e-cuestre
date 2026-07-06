@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   getProductBySlug,
-  getActiveProductSlugs,
   getProducts,
   productFromPrice,
   productStock,
@@ -24,10 +23,8 @@ import { PaymentMethods } from "@/components/site/payment-methods";
 import { Badge } from "@/components/ui/badge";
 import type { BrandTheme } from "@/lib/theme";
 
-export async function generateStaticParams() {
-  const slugs = await getActiveProductSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
+// Render dinámico (evita el cacheo de 404 en el cold-start; ver /marca).
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

@@ -58,6 +58,16 @@ export async function getFeaturedProducts(limit = 6): Promise<ProductFull[]> {
   });
 }
 
+/** Productos en oferta (tienen precio comparativo cargado desde el admin). */
+export async function getOffers(limit = 8): Promise<ProductFull[]> {
+  return prisma.product.findMany({
+    where: { status: "ACTIVE", compareAtPrice: { not: null } },
+    include: productInclude,
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+  });
+}
+
 export type ProductFilters = {
   brandSlug?: string;
   categorySlug?: string;

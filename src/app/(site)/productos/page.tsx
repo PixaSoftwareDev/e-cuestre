@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import {
   getBrands,
   getCategories,
@@ -69,22 +69,36 @@ export default async function ProductosPage({
       <div className="grid gap-8 lg:grid-cols-[248px_1fr] lg:gap-12">
         {/* ── Sidebar de filtros ─────────────────────────────── */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          {/* En móvil se pliega con <details> nativo (sin JS). En desktop
-              el contenido se fuerza visible vía CSS (.filters-panel). */}
-          <details className="filters-panel group/f">
-            <summary className="flex cursor-pointer list-none items-center justify-between border-b border-border pb-4 lg:cursor-default">
+          {/* Colapsable en móvil con un checkbox (sin JS, compatible con todos
+              los navegadores). En desktop (lg) el contenido queda siempre visible. */}
+          <input
+            type="checkbox"
+            id="filters-toggle"
+            className="peer sr-only"
+            aria-hidden
+          />
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <label
+              htmlFor="filters-toggle"
+              className="flex flex-1 cursor-pointer select-none items-center gap-2 lg:pointer-events-none"
+            >
               <span className="font-heading text-lg">Filtros</span>
-              {hasFilters && (
-                <Link
-                  href="/productos"
-                  className="text-xs text-accent underline-offset-4 hover:underline"
-                >
-                  Limpiar todo
-                </Link>
-              )}
-            </summary>
+              <ChevronDown
+                className="h-5 w-5 text-muted transition-transform peer-checked:rotate-180 lg:hidden"
+                strokeWidth={1.5}
+              />
+            </label>
+            {hasFilters && (
+              <Link
+                href="/productos"
+                className="text-xs text-accent underline-offset-4 hover:underline"
+              >
+                Limpiar todo
+              </Link>
+            )}
+          </div>
 
-            <div className="space-y-9 pt-7">
+          <div className="hidden space-y-9 pt-7 peer-checked:block lg:block">
               <form action="/productos" className="relative">
                 {sp.marca && (
                   <input type="hidden" name="marca" value={sp.marca} />
@@ -140,7 +154,6 @@ export default async function ProductosPage({
                 ))}
               </FilterGroup>
             </div>
-          </details>
         </aside>
 
         {/* ── Grilla de productos ────────────────────────────── */}

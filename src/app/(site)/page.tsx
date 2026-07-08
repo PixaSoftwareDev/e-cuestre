@@ -1,13 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ArrowRight,
-  Truck,
-  ShieldCheck,
-  Sparkles,
-  Leaf,
-  Recycle,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, Leaf, Recycle } from "lucide-react";
 import {
   getBrands,
   getOffers,
@@ -69,24 +62,6 @@ export default async function HomePage() {
     { t: t("home.values.materials.title"), d: t("home.values.materials.desc") },
     { t: t("home.values.lasting.title"), d: t("home.values.lasting.desc") },
     { t: t("home.values.secure.title"), d: t("home.values.secure.desc") },
-  ];
-
-  const benefits = [
-    {
-      icon: Truck,
-      t: "Envíos a todo el país",
-      d: "Con seguimiento vía DHL y embalaje cuidado.",
-    },
-    {
-      icon: ShieldCheck,
-      t: "Compra protegida",
-      d: "Pagos seguros y tus datos siempre cuidados.",
-    },
-    {
-      icon: Sparkles,
-      t: "Piezas seleccionadas",
-      d: "Solo marcas y materiales de primera.",
-    },
   ];
 
   return (
@@ -342,23 +317,6 @@ export default async function HomePage() {
                 </p>
               </div>
             </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ── BENEFICIOS: confianza ────────────────────────── */}
-      <section className="border-y border-border bg-card">
-        <div className="container-page grid gap-8 py-12 sm:grid-cols-3 md:py-14">
-          {benefits.map((b) => (
-            <div key={b.t} className="flex items-start gap-4">
-              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-accent/30 text-accent">
-                <b.icon className="h-5 w-5" strokeWidth={1.5} />
-              </span>
-              <div>
-                <p className="font-heading text-base">{b.t}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted">{b.d}</p>
-              </div>
-            </div>
           ))}
         </div>
       </section>

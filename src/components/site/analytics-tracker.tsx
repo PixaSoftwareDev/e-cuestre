@@ -32,8 +32,12 @@ export function AnalyticsTracker() {
     let stop: (() => void) | undefined;
     // ID propio por sesión de grabación: cada carga de la app arranca su
     // propia grabación con su snapshot inicial (seq 0), evitando que se pisen
-    // chunks al recargar la página.
-    const sessionId = crypto.randomUUID();
+    // chunks al recargar la página. crypto.randomUUID solo existe en contextos
+    // seguros (HTTPS/localhost); en HTTP se cae a un id aleatorio simple.
+    const sessionId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `r-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
     const startedAt = Date.now();
 
     (async () => {

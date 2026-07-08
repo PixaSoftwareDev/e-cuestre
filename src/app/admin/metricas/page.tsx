@@ -12,7 +12,8 @@ import {
 import { formatMoney } from "@/lib/money";
 import { PageHeader, Panel, StatCard } from "@/components/admin/ui";
 import { FunnelBars, RevenueChart } from "@/components/admin/charts";
-import { ShoppingCart, Repeat } from "lucide-react";
+import { CountUp } from "@/components/admin/count-up";
+import { ShoppingCart, Repeat, Eye, Percent } from "lucide-react";
 
 const CURRENCY = process.env.NEXT_PUBLIC_PAYPAL_CURRENCY ?? "USD";
 const RANGE_DAYS = 30;
@@ -62,6 +63,19 @@ export default async function MetricsPage() {
 
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
+          label="Visitas · 30 días"
+          value={<CountUp value={funnel.page_view} />}
+          hint="páginas vistas"
+          icon={<Eye className="h-4 w-4" strokeWidth={1.75} />}
+        />
+        <StatCard
+          label="Conversión"
+          value={`${convRate}%`}
+          hint="vista → compra"
+          icon={<Percent className="h-4 w-4" strokeWidth={1.75} />}
+          accent
+        />
+        <StatCard
           label="Abandono de carrito"
           value={`${cartAbandonment.rate.toFixed(1)}%`}
           hint={`${cartAbandonment.abandoned} de ${cartAbandonment.carts} carritos`}
@@ -72,7 +86,6 @@ export default async function MetricsPage() {
           value={`${returningCustomers.rate.toFixed(1)}%`}
           hint={`${returningCustomers.returning} de ${returningCustomers.customers} clientes`}
           icon={<Repeat className="h-4 w-4" strokeWidth={1.75} />}
-          accent
         />
       </div>
 

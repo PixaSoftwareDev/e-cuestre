@@ -65,16 +65,6 @@ export async function Footer({
                   Cambios y devoluciones
                 </Link>
               </li>
-              <li>
-                <Link href="/terminos" className="text-fg/80 transition-colors hover:text-primary">
-                  Términos y condiciones
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacidad" className="text-fg/80 transition-colors hover:text-primary">
-                  Política de privacidad
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -107,9 +97,19 @@ export async function Footer({
 
       <div className="border-t border-border">
         <div className="container-page flex flex-col items-center justify-between gap-4 py-6 text-xs text-muted md:flex-row">
-          <p>
-            © {year} {siteName}. {t("footer.rights")}
-          </p>
+          <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:gap-4 sm:text-left">
+            <p>
+              © {year} {siteName}. {t("footer.rights")}
+            </p>
+            <nav className="flex items-center gap-4">
+              <Link href="/terminos" className="transition-colors hover:text-fg">
+                Términos
+              </Link>
+              <Link href="/privacidad" className="transition-colors hover:text-fg">
+                Privacidad
+              </Link>
+            </nav>
+          </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <span className="flex items-center gap-2">
               Envíos con

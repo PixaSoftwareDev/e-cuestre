@@ -1,6 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Truck, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Truck,
+  ShieldCheck,
+  Sparkles,
+  Leaf,
+  Recycle,
+} from "lucide-react";
 import {
   getBrands,
   getOffers,
@@ -25,9 +32,28 @@ export default async function HomePage() {
   ]);
 
   const brandsWithLogo = brands.filter((b) => b.logoUrl);
+  // Foto editorial de orígenes/oficio (talabartería a mano). Fija, no de una marca.
   const aboutImage =
-    brands.find((b) => b.heroImageUrl)?.heroImageUrl ??
-    "https://res.cloudinary.com/dukv3ov6t/image/upload/v1783296082/hawsrvxet7sy8odgi74m.jpg";
+    "https://images.unsplash.com/photo-1647502191516-68a4f8c74ed4?w=1200&q=80&auto=format&fit=crop";
+
+  // Compromisos de la casa (sustentabilidad + garantía).
+  const commitments = [
+    {
+      icon: Leaf,
+      title: "Cuero teñido vegetal",
+      text: "La mayoría de nuestras piezas de cuero se curten con tintes naturales, para el menor impacto posible en el medio ambiente.",
+    },
+    {
+      icon: Recycle,
+      title: "Comprometidos con la sustentabilidad",
+      text: "Cuidamos el ambiente en cada proceso: selección de materiales e insumos, empaque de los envíos y reciclado de embalajes y descartables.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Garantía en todos los productos",
+      text: "Que estés conforme es nuestra prioridad. Por eso, para tu tranquilidad, todas las piezas tienen garantía.",
+    },
+  ];
 
   // Descuento máximo entre las ofertas (para el sello "Hasta −X%").
   const maxDiscount = offers.reduce((max, p) => {
@@ -272,15 +298,16 @@ export default async function HomePage() {
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <p className="kicker text-accent">Somos Ecuestre</p>
+            <p className="kicker text-accent">Nuestra historia</p>
             <h2 className="mt-3 font-heading text-3xl leading-tight md:text-4xl">
-              La casa que reúne las mejores marcas del polo
+              Nacimos del oficio
             </h2>
             <p className="mt-5 leading-relaxed text-muted">
-              Curamos equipamiento, indumentaria y piezas de cuero de las casas
-              más finas del mundo ecuestre. Una sola tienda, la misma exigencia
-              de calidad: materiales nobles, oficio y diseño que dura toda la
-              vida.
+              Ecuestre empezó entre el olor a cuero y el silencio del campo, de
+              la mano de talabarteros que trabajan cada pieza como hace
+              generaciones. De esa raíz nació esta casa: reunir a las mejores
+              firmas del mundo ecuestre en un mismo lugar, sin perder nunca el
+              respeto por el oficio ni por quien lo lleva puesto.
             </p>
             <Button asChild size="lg" className="mt-8">
               <Link href="/productos">
@@ -289,6 +316,33 @@ export default async function HomePage() {
               </Link>
             </Button>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ── COMPROMISOS: sustentabilidad + garantía ─────── */}
+      <section className="container-page py-20 md:py-28">
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="kicker text-accent">Nuestro compromiso</p>
+            <h2 className="mt-2 font-heading text-3xl md:text-4xl">
+              Hecho con conciencia
+            </h2>
+          </div>
+        </Reveal>
+        <div className="mx-auto mt-14 grid max-w-5xl gap-12 md:grid-cols-3">
+          {commitments.map((c, i) => (
+            <Reveal key={c.title} delay={i * 0.1}>
+              <div className="text-center">
+                <span className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full border border-accent/30 text-accent">
+                  <c.icon className="h-6 w-6" strokeWidth={1.5} />
+                </span>
+                <h3 className="mt-6 font-heading text-lg">{c.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {c.text}
+                </p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 

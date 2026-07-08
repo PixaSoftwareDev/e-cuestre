@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import "rrweb/dist/style.css";
 
@@ -13,8 +13,9 @@ type Ctrl = {
 
 /**
  * Reproductor de grabaciones rrweb. Usa el `Replayer` de rrweb directamente
- * (más estable en Next que el wrapper rrweb-player) con controles propios.
- * Recibe los eventos ya concatenados y ordenados por `seq`.
+ * (más estable en Next que rrweb-player) con controles propios. La sesión se
+ * reproduce a la resolución original y se ESCALA para entrar completa a lo
+ * ancho del contenedor (sin scroll lateral).
  */
 export function RecordingPlayer({ events }: { events: unknown[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -22,10 +23,33 @@ export function RecordingPlayer({ events }: { events: unknown[] }) {
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState(false);
 
+  // Escala el reproductor para que su ancho entre en el contenedor.
+  const fit = useCallback(() => {
+    const container = ref.current;
+    const wrapper = container?.querySelector<HTMLElement>(".replayer-wrapper");
+    const iframe = wrapper?.querySelector("iframe");
+    if (!container || !wrapper || !iframe) return;
+    // El tamaño real de la sesión es el del iframe (el viewport grabado).
+    const recW =
+      iframe.offsetWidth || parseFloat(iframe.getAttribute("width") || "0");
+    const recH =
+      iframe.offsetHeight || parseFloat(iframe.getAttribute("height") || "0");
+    if (!recW || !recH) return;
+    // Se fija ese tamaño en el wrapper y se lo escala para entrar completo.
+    wrapper.style.width = `${recW}px`;
+    wrapper.style.height = `${recH}px`;
+    const scale = Math.min(container.clientWidth / recW, 1);
+    wrapper.style.transformOrigin = "top left";
+    wrapper.style.transform = `scale(${scale})`;
+    // El contenedor toma el alto de la sesión ya escalada (sin huecos).
+    container.style.height = `${recH * scale}px`;
+  }, []);
+
   useEffect(() => {
     if (!ref.current || events.length < 2) return;
     const container = ref.current;
     let cancelled = false;
+    let raf = 0;
 
     (async () => {
       try {
@@ -41,18 +65,31 @@ export function RecordingPlayer({ events }: { events: unknown[] }) {
         replayerRef.current = replayer;
         replayer.play();
         setPlaying(true);
+        // El wrapper puede tardar un frame en tener dimensiones: reintenta.
+        let tries = 0;
+        const tick = () => {
+          fit();
+          if (++tries < 8) raf = window.setTimeout(tick, 120);
+        };
+        tick();
       } catch {
         setError(true);
       }
     })();
 
+    const onResize = () => fit();
+    window.addEventListener("resize", onResize);
+
     return () => {
       cancelled = true;
+      window.clearTimeout(raf);
+      window.removeEventListener("resize", onResize);
       replayerRef.current?.destroy?.();
       replayerRef.current = null;
       container.innerHTML = "";
+      container.style.height = "";
     };
-  }, [events]);
+  }, [events, fit]);
 
   if (events.length < 2) {
     return (
@@ -102,9 +139,10 @@ export function RecordingPlayer({ events }: { events: unknown[] }) {
           <RotateCcw className="h-4 w-4" /> Reiniciar
         </button>
       </div>
+      {/* overflow-hidden: la sesión se escala para entrar completa, sin scroll */}
       <div
         ref={ref}
-        className="grid min-h-[400px] place-items-center overflow-auto rounded-brand border border-border bg-white p-2"
+        className="relative w-full overflow-hidden rounded-brand border border-border bg-white"
       />
     </div>
   );

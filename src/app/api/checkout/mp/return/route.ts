@@ -13,7 +13,6 @@ export const runtime = "nodejs";
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const paymentId = sp.get("payment_id") ?? sp.get("collection_id");
-  const status = sp.get("status") ?? sp.get("collection_status");
   const base = req.nextUrl.origin;
 
   const go = (path: string) => NextResponse.redirect(`${base}${path}`);

@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { Play, Monitor, Smartphone, Tablet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/admin/ui";
+import { cn } from "@/lib/utils";
 
 function fmtDuration(ms: number) {
   const s = Math.round(ms / 1000);
@@ -15,8 +17,31 @@ const DeviceIcon = ({ device }: { device: string | null }) => {
   return <Monitor className="h-4 w-4" />;
 };
 
-export default async function RecordingsPage() {
+const DEVICES = [
+  { value: "desktop", label: "Desktop" },
+  { value: "mobile", label: "Mobile" },
+  { value: "tablet", label: "Tablet" },
+] as const;
+
+type SearchParams = Promise<{
+  device?: string;
+}>;
+
+export default async function RecordingsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const sp = await searchParams;
+  const device = DEVICES.some((d) => d.value === sp.device)
+    ? sp.device
+    : undefined;
+
+  const where: Prisma.SessionRecordingWhereInput = {};
+  if (device) where.device = device;
+
   const recordings = await prisma.sessionRecording.findMany({
+    where,
     orderBy: { startedAt: "desc" },
     take: 100,
     include: { _count: { select: { chunks: true } } },
@@ -29,10 +54,35 @@ export default async function RecordingsPage() {
         description="Reviví cómo navegan los visitantes para detectar fricciones."
       />
 
+      {/* ── Filtro por dispositivo ──────────────────────────── */}
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <span className="mr-1 text-xs uppercase tracking-wide text-muted">
+          Dispositivo
+        </span>
+        <FilterChip href="/admin/grabaciones" active={!device}>
+          Todos
+        </FilterChip>
+        {DEVICES.map((d) => (
+          <FilterChip
+            key={d.value}
+            href={`/admin/grabaciones?device=${d.value}`}
+            active={device === d.value}
+          >
+            {d.label}
+          </FilterChip>
+        ))}
+      </div>
+
       {recordings.length === 0 ? (
         <div className="rounded-brand border border-dashed border-border p-10 text-center text-sm text-muted">
-          Todavía no hay grabaciones. Se generan automáticamente cuando los
-          visitantes navegan la tienda (si <code>NEXT_PUBLIC_SESSION_RECORDING=true</code>).
+          {device
+            ? "No hay grabaciones para ese dispositivo."
+            : (
+              <>
+                Todavía no hay grabaciones. Se generan automáticamente cuando los
+                visitantes navegan la tienda (si <code>NEXT_PUBLIC_SESSION_RECORDING=true</code>).
+              </>
+            )}
         </div>
       ) : (
         <div className="overflow-hidden rounded-brand border border-border bg-card">
@@ -82,5 +132,29 @@ export default async function RecordingsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function FilterChip({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "rounded-full border px-3 py-1.5 text-xs transition-colors",
+        active
+          ? "border-primary bg-primary font-medium text-primary-fg"
+          : "border-border text-muted hover:border-fg/40 hover:text-fg",
+      )}
+    >
+      {children}
+    </Link>
   );
 }

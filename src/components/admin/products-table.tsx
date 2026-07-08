@@ -65,42 +65,6 @@ export function ProductsTable({
     }
   }
 
-  function SortHead({
-    k,
-    label,
-    align = "left",
-  }: {
-    k: SortKey;
-    label: string;
-    align?: "left" | "right";
-  }) {
-    const active = sortKey === k;
-    return (
-      <th className={cn("p-4 font-medium", align === "right" && "text-right")}>
-        <button
-          type="button"
-          onClick={() => toggleSort(k)}
-          className={cn(
-            "inline-flex items-center gap-1 transition-colors hover:text-fg",
-            align === "right" && "flex-row-reverse",
-            active && "text-fg",
-          )}
-        >
-          {label}
-          {active ? (
-            sortDir === "asc" ? (
-              <ArrowUp className="h-3.5 w-3.5" />
-            ) : (
-              <ArrowDown className="h-3.5 w-3.5" />
-            )
-          ) : (
-            <ChevronsUpDown className="h-3.5 w-3.5 opacity-40" />
-          )}
-        </button>
-      </th>
-    );
-  }
-
   return (
     <div>
       {/* Filtros */}
@@ -142,11 +106,11 @@ export function ProductsTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
-              <SortHead k="name" label="Producto" />
+              <SortHead k="name" label="Producto" s={sortKey} d={sortDir} onSort={toggleSort} />
               <th className="p-4 font-medium">Marca</th>
               <th className="p-4 font-medium">Estado</th>
-              <SortHead k="stock" label="Stock" align="right" />
-              <SortHead k="price" label="Precio" align="right" />
+              <SortHead k="stock" label="Stock" align="right" s={sortKey} d={sortDir} onSort={toggleSort} />
+              <SortHead k="price" label="Precio" align="right" s={sortKey} d={sortDir} onSort={toggleSort} />
             </tr>
           </thead>
           <tbody>
@@ -213,5 +177,47 @@ export function ProductsTable({
         </table>
       </div>
     </div>
+  );
+}
+
+function SortHead({
+  k,
+  label,
+  align = "left",
+  s,
+  d,
+  onSort,
+}: {
+  k: SortKey;
+  label: string;
+  align?: "left" | "right";
+  s: SortKey;
+  d: "asc" | "desc";
+  onSort: (k: SortKey) => void;
+}) {
+  const active = s === k;
+  return (
+    <th className={cn("p-4 font-medium", align === "right" && "text-right")}>
+      <button
+        type="button"
+        onClick={() => onSort(k)}
+        className={cn(
+          "inline-flex items-center gap-1 transition-colors hover:text-fg",
+          align === "right" && "flex-row-reverse",
+          active && "text-fg",
+        )}
+      >
+        {label}
+        {active ? (
+          d === "asc" ? (
+            <ArrowUp className="h-3.5 w-3.5" />
+          ) : (
+            <ArrowDown className="h-3.5 w-3.5" />
+          )
+        ) : (
+          <ChevronsUpDown className="h-3.5 w-3.5 opacity-40" />
+        )}
+      </button>
+    </th>
   );
 }

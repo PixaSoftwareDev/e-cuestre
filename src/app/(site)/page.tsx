@@ -1,21 +1,33 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
-import { getBrands, getOffers, productFromPrice } from "@/lib/queries";
+import { ArrowRight, Truck, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  getBrands,
+  getOffers,
+  getCategoriesForHome,
+  getFeaturedProducts,
+  productFromPrice,
+} from "@/lib/queries";
 import { ProductCard } from "@/components/site/product-card";
 import { Reveal } from "@/components/site/reveal";
 import { SiteHero } from "@/components/site/site-hero";
 import { RecentlyViewed } from "@/components/site/recently-viewed";
+import { Button } from "@/components/ui/button";
 import { getT } from "@/lib/i18n/server";
 
 export default async function HomePage() {
-  const [brands, offers, t] = await Promise.all([
+  const [brands, offers, categories, featured, t] = await Promise.all([
     getBrands(),
     getOffers(8),
+    getCategoriesForHome(6),
+    getFeaturedProducts(8),
     getT(),
   ]);
 
   const brandsWithLogo = brands.filter((b) => b.logoUrl);
+  const aboutImage =
+    brands.find((b) => b.heroImageUrl)?.heroImageUrl ??
+    "https://res.cloudinary.com/dukv3ov6t/image/upload/v1783296082/hawsrvxet7sy8odgi74m.jpg";
 
   // Descuento máximo entre las ofertas (para el sello "Hasta −X%").
   const maxDiscount = offers.reduce((max, p) => {
@@ -33,6 +45,24 @@ export default async function HomePage() {
     { t: t("home.values.secure.title"), d: t("home.values.secure.desc") },
   ];
 
+  const benefits = [
+    {
+      icon: Truck,
+      t: "Envíos a todo el país",
+      d: "Con seguimiento vía DHL y embalaje cuidado.",
+    },
+    {
+      icon: ShieldCheck,
+      t: "Compra protegida",
+      d: "Pagos seguros y tus datos siempre cuidados.",
+    },
+    {
+      icon: Sparkles,
+      t: "Piezas seleccionadas",
+      d: "Solo marcas y materiales de primera.",
+    },
+  ];
+
   return (
     <div>
       {/* ── HERO: la casa (Ecuestre) — video de caballos ── */}
@@ -40,6 +70,51 @@ export default async function HomePage() {
         imageUrl="https://res.cloudinary.com/dukv3ov6t/image/upload/v1783296082/hawsrvxet7sy8odgi74m.jpg"
         videoUrl="https://res.cloudinary.com/dukv3ov6t/video/upload/v1783336741/ygy6ap8ahh04wrjonljr.mp4"
       />
+
+      {/* ── RUBROS: explorá por categoría ─────────────────── */}
+      {categories.length > 0 && (
+        <section className="container-page py-20 md:py-28">
+          <Reveal>
+            <div className="mb-10 flex items-end justify-between gap-4">
+              <div>
+                <p className="kicker text-accent">Explorá</p>
+                <h2 className="mt-2 font-heading text-3xl md:text-4xl">
+                  Comprá por rubro
+                </h2>
+              </div>
+              <Link
+                href="/productos"
+                className="hidden items-center gap-1.5 text-sm transition-colors hover:text-primary md:inline-flex"
+              >
+                Ver la tienda
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+            {categories.map((c, i) => (
+              <Reveal key={c.slug} delay={(i % 6) * 0.05}>
+                <Link
+                  href={`/productos?categoria=${c.slug}`}
+                  className="group relative block aspect-[3/4] overflow-hidden rounded-brand"
+                >
+                  <Image
+                    src={c.imageUrl}
+                    alt={c.name}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 16vw"
+                    className="object-cover transition-transform duration-700 ease-[var(--ease-smooth)] group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent transition-opacity duration-500 group-hover:from-black/90" />
+                  <span className="absolute inset-x-0 bottom-0 p-3 text-center text-sm font-medium text-white">
+                    {c.name}
+                  </span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── OFERTAS: promocional (manejable desde el admin) ─── */}
       {offers.length > 0 && (
@@ -150,6 +225,89 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── DESTACADOS: vidriera de producto ─────────────── */}
+      {featured.length > 0 && (
+        <section className="bg-card py-20 md:py-28">
+          <div className="container-page">
+            <Reveal>
+              <div className="mb-10 flex items-end justify-between gap-4">
+                <div>
+                  <p className="kicker text-accent">Selección</p>
+                  <h2 className="mt-2 font-heading text-3xl md:text-4xl">
+                    Destacados de la temporada
+                  </h2>
+                </div>
+                <Link
+                  href="/productos"
+                  className="hidden items-center gap-1.5 text-sm transition-colors hover:text-primary md:inline-flex"
+                >
+                  Ver todo
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </Reveal>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
+              {featured.slice(0, 4).map((p, i) => (
+                <Reveal key={p.id} delay={(i % 4) * 0.06} y={18}>
+                  <ProductCard product={p} />
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── SOMOS ECUESTRE: identidad / nosotros ─────────── */}
+      <section className="container-page py-20 md:py-28">
+        <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+          <Reveal>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-brand">
+              <Image
+                src={aboutImage}
+                alt="Ecuestre"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="kicker text-accent">Somos Ecuestre</p>
+            <h2 className="mt-3 font-heading text-3xl leading-tight md:text-4xl">
+              La casa que reúne las mejores marcas del polo
+            </h2>
+            <p className="mt-5 leading-relaxed text-muted">
+              Curamos equipamiento, indumentaria y piezas de cuero de las casas
+              más finas del mundo ecuestre. Una sola tienda, la misma exigencia
+              de calidad: materiales nobles, oficio y diseño que dura toda la
+              vida.
+            </p>
+            <Button asChild size="lg" className="mt-8">
+              <Link href="/productos">
+                Conocer la tienda
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── BENEFICIOS: confianza ────────────────────────── */}
+      <section className="border-y border-border bg-card">
+        <div className="container-page grid gap-8 py-12 sm:grid-cols-3 md:py-14">
+          {benefits.map((b) => (
+            <div key={b.t} className="flex items-start gap-4">
+              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-accent/30 text-accent">
+                <b.icon className="h-5 w-5" strokeWidth={1.5} />
+              </span>
+              <div>
+                <p className="font-heading text-base">{b.t}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{b.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ── SEGUÍ EXPLORANDO (personalizado) ─────────────── */}
       <RecentlyViewed title={t("home.keepExploring")} />

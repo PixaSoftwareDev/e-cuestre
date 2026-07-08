@@ -49,6 +49,40 @@ export async function getCategories(
   return [...bySlug.values()];
 }
 
+/**
+ * Categorías para la vidriera del home: cada una con una imagen representativa
+ * (la propia si tiene, si no la del primer producto activo). Descarta las que
+ * no tienen imagen para no mostrar tiles vacíos.
+ */
+export async function getCategoriesForHome(
+  limit = 6,
+): Promise<{ slug: string; name: string; imageUrl: string }[]> {
+  const rows = await prisma.category.findMany({
+    orderBy: { sortOrder: "asc" },
+    select: {
+      slug: true,
+      name: true,
+      imageUrl: true,
+      products: {
+        where: { status: "ACTIVE" },
+        orderBy: [{ featured: "desc" }, { updatedAt: "desc" }],
+        take: 1,
+        select: {
+          images: { orderBy: { sortOrder: "asc" }, take: 1, select: { url: true } },
+        },
+      },
+    },
+  });
+  const bySlug = new Map<string, { slug: string; name: string; imageUrl: string }>();
+  for (const c of rows) {
+    if (bySlug.has(c.slug)) continue;
+    const img = c.imageUrl ?? c.products[0]?.images[0]?.url ?? null;
+    if (!img) continue;
+    bySlug.set(c.slug, { slug: c.slug, name: c.name, imageUrl: img });
+  }
+  return [...bySlug.values()].slice(0, limit);
+}
+
 export async function getFeaturedProducts(limit = 6): Promise<ProductFull[]> {
   return prisma.product.findMany({
     where: { status: "ACTIVE", featured: true },

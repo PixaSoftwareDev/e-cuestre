@@ -3,6 +3,10 @@ import {
   getDashboardStats,
   getSalesTimeseries,
   getTopProducts,
+  getRevenueSince,
+  getAverageOrderValue,
+  getFunnel,
+  getSidebarCounts,
 } from "@/lib/metrics";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/money";
@@ -10,29 +14,47 @@ import { PageHeader, StatCard, Panel } from "@/components/admin/ui";
 import { RevenueChart } from "@/components/admin/charts";
 import { Badge } from "@/components/ui/badge";
 import { CountUp } from "@/components/admin/count-up";
-import { DollarSign, ShoppingCart, Package, AlertTriangle } from "lucide-react";
+import {
+  DollarSign,
+  ShoppingCart,
+  Package,
+  AlertTriangle,
+  TrendingUp,
+  Receipt,
+  Percent,
+  Star,
+} from "lucide-react";
 
 const CURRENCY = process.env.NEXT_PUBLIC_PAYPAL_CURRENCY ?? "USD";
 
 export default async function AdminDashboard() {
-  const [stats, series, top, recentOrders] = await Promise.all([
-    getDashboardStats(),
-    getSalesTimeseries(30),
-    getTopProducts(6),
-    prisma.order.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 6,
-      select: {
-        id: true,
-        number: true,
-        email: true,
-        total: true,
-        currency: true,
-        status: true,
-        createdAt: true,
-      },
-    }),
-  ]);
+  const [stats, series, top, recentOrders, rev7, aov, funnel, counts] =
+    await Promise.all([
+      getDashboardStats(),
+      getSalesTimeseries(30),
+      getTopProducts(6),
+      prisma.order.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        select: {
+          id: true,
+          number: true,
+          email: true,
+          total: true,
+          currency: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+      getRevenueSince(7),
+      getAverageOrderValue(),
+      getFunnel(30),
+      getSidebarCounts(),
+    ]);
+
+  const conversion = funnel.page_view
+    ? (funnel.purchase / funnel.page_view) * 100
+    : 0;
 
   return (
     <div>
@@ -66,6 +88,33 @@ export default async function AdminDashboard() {
           value={<CountUp value={stats.lowStockVariants} />}
           hint="variantes con ≤ 3 unidades"
           icon={<AlertTriangle className="h-4 w-4" strokeWidth={1.75} />}
+        />
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard
+          label="Ingresos · 7 días"
+          value={<CountUp value={rev7.revenue} currency={CURRENCY} />}
+          hint={`${rev7.orders} órdenes`}
+          icon={<TrendingUp className="h-4 w-4" strokeWidth={1.75} />}
+        />
+        <StatCard
+          label="Ticket promedio"
+          value={<CountUp value={aov} currency={CURRENCY} />}
+          hint="por orden pagada"
+          icon={<Receipt className="h-4 w-4" strokeWidth={1.75} />}
+        />
+        <StatCard
+          label="Conversión"
+          value={`${conversion.toFixed(1)}%`}
+          hint="visitas → compra (30d)"
+          icon={<Percent className="h-4 w-4" strokeWidth={1.75} />}
+        />
+        <StatCard
+          label="Reseñas pendientes"
+          value={<CountUp value={counts.pendingReviews} />}
+          hint="por aprobar"
+          icon={<Star className="h-4 w-4" strokeWidth={1.75} />}
         />
       </div>
 

@@ -29,7 +29,25 @@ const links = [
   { href: "/admin/grabaciones", label: "Grabaciones", icon: Video },
 ];
 
-export function AdminSidebar({ email }: { email: string }) {
+export type SidebarCounts = {
+  pendingOrders: number;
+  pendingReviews: number;
+  lowStock: number;
+};
+
+const countByHref: Record<string, keyof SidebarCounts> = {
+  "/admin/productos": "lowStock",
+  "/admin/ordenes": "pendingOrders",
+  "/admin/resenas": "pendingReviews",
+};
+
+export function AdminSidebar({
+  email,
+  counts,
+}: {
+  email: string;
+  counts?: SidebarCounts;
+}) {
   const pathname = usePathname();
   return (
     <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-border bg-card">
@@ -45,6 +63,8 @@ export function AdminSidebar({ email }: { email: string }) {
           const active = l.exact
             ? pathname === l.href
             : pathname.startsWith(l.href);
+          const countKey = countByHref[l.href];
+          const count = countKey ? counts?.[countKey] ?? 0 : 0;
           return (
             <Link
               key={l.href}
@@ -68,6 +88,11 @@ export function AdminSidebar({ email }: { email: string }) {
                 strokeWidth={1.75}
               />
               <span className="relative z-10">{l.label}</span>
+              {count > 0 && (
+                <span className="relative z-10 ml-auto inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary/15 px-1.5 py-0.5 text-[11px] font-medium leading-none text-primary tabular-nums">
+                  {count > 99 ? "99+" : count}
+                </span>
+              )}
             </Link>
           );
         })}

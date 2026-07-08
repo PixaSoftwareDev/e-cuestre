@@ -52,3 +52,6 @@ next-env.d.ts
 # Screenshots temporales de QA
 *.jpeg
 *.jpg
+
+# Ejemplo de entorno (sin secretos), sí se versiona
+!.env.example

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { getSessionId, track } from "@/lib/track";
+import { track } from "@/lib/track";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * Monta la analítica del sitio:
@@ -23,19 +24,25 @@ export function AnalyticsTracker() {
   // grabación de sesión (una sola vez)
   useEffect(() => {
     if (startedRef.current) return;
-    if (process.env.NEXT_PUBLIC_SESSION_RECORDING !== "true") return;
+    // Acepta "true"/"on"/"1"/"yes" (tolerante a cómo se setee el flag).
+    const flag = (process.env.NEXT_PUBLIC_SESSION_RECORDING ?? "").toLowerCase();
+    if (!["true", "on", "1", "yes"].includes(flag)) return;
     startedRef.current = true;
 
     let stop: (() => void) | undefined;
-    const sessionId = getSessionId();
+    // ID propio por sesión de grabación: cada carga de la app arranca su
+    // propia grabación con su snapshot inicial (seq 0), evitando que se pisen
+    // chunks al recargar la página.
+    const sessionId = crypto.randomUUID();
     const startedAt = Date.now();
 
     (async () => {
       const { record } = await import("rrweb");
       let buffer: unknown[] = [];
       let seq = 0;
+      const endpoint = withBasePath("/api/recordings");
 
-      const flush = () => {
+      const flush = (isUnload = false) => {
         if (!buffer.length) return;
         const events = buffer;
         buffer = [];
@@ -51,16 +58,24 @@ export function AnalyticsTracker() {
                 ? "tablet"
                 : "desktop",
         });
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon("/api/recordings", payload);
-        } else {
-          fetch("/api/recordings", {
-            method: "POST",
-            body: payload,
-            headers: { "Content-Type": "application/json" },
-            keepalive: true,
-          }).catch(() => {});
+        // sendBeacon y fetch-keepalive comparten un límite de ~64KB de body; el
+        // primer chunk (con el snapshot) suele superarlo. Para payloads chicos
+        // usamos sendBeacon; para el resto, fetch SIN keepalive (sin límite de
+        // tamaño). keepalive solo se activa al descargar la página, donde es la
+        // única forma de que el request sobreviva (y ahí el chunk ya es chico).
+        if (
+          payload.length < 60_000 &&
+          typeof navigator.sendBeacon === "function" &&
+          navigator.sendBeacon(endpoint, payload)
+        ) {
+          return;
         }
+        fetch(endpoint, {
+          method: "POST",
+          body: payload,
+          headers: { "Content-Type": "application/json" },
+          keepalive: isUnload && payload.length < 60_000,
+        }).catch(() => {});
       };
 
       const stopFn = record({
@@ -72,8 +87,8 @@ export function AnalyticsTracker() {
         recordCanvas: false,
       });
 
-      const interval = window.setInterval(flush, 5000);
-      const onHide = () => flush();
+      const interval = window.setInterval(() => flush(), 5000);
+      const onHide = () => flush(true);
       document.addEventListener("visibilitychange", onHide);
       window.addEventListener("pagehide", onHide);
 

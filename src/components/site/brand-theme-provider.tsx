@@ -2,25 +2,16 @@ import * as React from "react";
 import { themeToCssVars, type BrandTheme } from "@/lib/theme";
 
 /**
- * Envuelve una sección con el theme de una marca.
+ * Aplica la IDENTIDAD de una marca como variables CSS inline: color primario
+ * (CTA), acento, texto sobre primario y radio de esquinas.
  *
- * - Colores de **identidad** (primary, accent, primaryFg, radius): se aplican
- *   siempre, como estilo inline (identidad de marca en claro y en oscuro).
- * - Colores **estructurales** (fondo, texto, tarjetas, bordes, muted): se
- *   aplican SOLO en modo claro. En modo oscuro los maneja `html.dark` (global),
- *   así el dark funciona aunque la marca tenga un fondo claro.
+ * El fondo y el texto NO se tocan: los controla el modo claro/oscuro global del
+ * sitio. Así el theme de marca es coherente en ambos modos y en todo el sitio
+ * (navbar incluido), sin riesgos de contraste. La marca se distingue por su
+ * acento, tipografía, cantos, logo y fotos — no por invertir el fondo.
  *
  * Server Component: cero JS en el cliente.
  */
-
-const STRUCTURAL = [
-  "--color-bg",
-  "--color-fg",
-  "--color-card",
-  "--color-muted",
-  "--color-border",
-] as const;
-
 export function BrandThemeProvider({
   theme,
   className,
@@ -34,7 +25,6 @@ export function BrandThemeProvider({
 }) {
   const vars = themeToCssVars(theme);
 
-  // Identidad: siempre (inline gana sobre todo, incluso en dark).
   const identity: Record<string, string> = {
     "--color-primary": vars["--color-primary"],
     "--color-primary-fg": vars["--color-primary-fg"],
@@ -42,23 +32,8 @@ export function BrandThemeProvider({
     "--radius-brand": vars["--radius-brand"],
   };
 
-  // Estructurales: solo en claro, vía una clase scopeada.
-  const structuralCss = STRUCTURAL.map((k) => `${k}:${vars[k]}`).join(";");
-  const seed = STRUCTURAL.map((k) => vars[k]).join("");
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (Math.imul(h, 31) + seed.charCodeAt(i)) | 0;
-  const cls = `brand-${(h >>> 0).toString(36)}`;
-  const css = `html:not(.dark) .${cls}{${structuralCss}}`;
-
   return (
-    <Tag
-      style={identity as React.CSSProperties}
-      // `bg-bg text-fg` fijan fondo y texto a las vars de la marca, juntos: sin
-      // el fondo, un theme oscuro deja texto claro sobre fondo claro (ilegible);
-      // sin el texto, hereda el fg global y no contrasta con el fondo de marca.
-      className={`${cls} bg-bg text-fg${className ? ` ${className}` : ""}`}
-    >
-      <style dangerouslySetInnerHTML={{ __html: css }} />
+    <Tag style={identity as React.CSSProperties} className={className}>
       {children}
     </Tag>
   );

@@ -26,15 +26,12 @@ export type BrandFormInitial = {
   theme: BrandTheme;
 };
 
+// El fondo y el texto los controla el modo claro/oscuro del sitio; la marca
+// aporta su identidad de acento. Por eso solo se editan estos colores.
 const COLOR_LABELS: { key: keyof BrandTheme["colors"]; label: string }[] = [
-  { key: "primary", label: "Primario" },
+  { key: "primary", label: "Primario (CTA)" },
   { key: "primaryFg", label: "Texto s/ primario" },
-  { key: "accent", label: "Acento" },
-  { key: "bg", label: "Fondo" },
-  { key: "fg", label: "Texto" },
-  { key: "card", label: "Tarjetas" },
-  { key: "muted", label: "Atenuado" },
-  { key: "border", label: "Bordes" },
+  { key: "accent", label: "Acento / dorado" },
 ];
 
 export function BrandForm({ initial }: { initial?: BrandFormInitial }) {
@@ -217,26 +214,30 @@ export function BrandForm({ initial }: { initial?: BrandFormInitial }) {
           <h2 className="mb-4 font-heading text-lg">Vista previa</h2>
           <div
             style={themeToCssVars(f.theme) as React.CSSProperties}
-            className="overflow-hidden rounded-[var(--radius-brand)] border"
+            className="overflow-hidden rounded-[var(--radius-brand)] border border-border"
           >
-            <div className="bg-[var(--color-bg)] p-5 text-[var(--color-fg)]">
-              <p className="text-xs" style={{ letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--color-accent)" }}>
+            <div className="bg-bg p-5 text-fg">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-accent)]">
                 {f.name || "Marca"}
               </p>
               <h3 className="mt-1 font-heading text-xl">Pieza destacada</h3>
-              <p className="mt-1 text-sm" style={{ color: "var(--color-muted)" }}>
+              <p className="mt-1 text-sm text-muted">
                 {f.tagline || "Tu tagline acá"}
               </p>
               <div className="mt-4 flex gap-2">
                 <span className="rounded-[var(--radius-brand)] bg-[var(--color-primary)] px-4 py-2 text-xs" style={{ color: "var(--color-primary-fg)" }}>
                   Comprar
                 </span>
-                <span className="rounded-[var(--radius-brand)] border px-4 py-2 text-xs">
+                <span className="rounded-[var(--radius-brand)] border border-border px-4 py-2 text-xs">
                   Ver más
                 </span>
               </div>
             </div>
           </div>
+          <p className="mt-3 text-xs text-muted">
+            El fondo y el texto los define el modo claro/oscuro del sitio. La
+            marca aporta su acento, cantos y tipografía.
+          </p>
         </section>
 
         <section className="rounded-brand border border-border bg-card p-6">

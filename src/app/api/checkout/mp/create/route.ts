@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
     const order = await createOrderFromCart(
       parsed.data.items,
       parsed.data.customer,
+      "mercadopago",
     );
 
     // 2) Preferencia de pago en Mercado Pago.

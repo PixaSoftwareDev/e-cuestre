@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     const order = await createOrderFromCart(
       parsed.data.items,
       parsed.data.customer,
+      "paypal",
     );
 
     // 2) Orden en el proveedor de pago (PayPal).

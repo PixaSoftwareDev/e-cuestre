@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { generateOrderNumber } from "@/lib/utils";
 import { recordEvents } from "@/lib/analytics";
+import { sendOrderConfirmation, notifyAdminNewOrder } from "@/lib/email";
 
 export type CartLineInput = {
   productId: string;
@@ -24,6 +25,7 @@ export type CustomerInput = {
 export async function createOrderFromCart(
   lines: CartLineInput[],
   customer: CustomerInput,
+  provider: string = "paypal",
 ) {
   if (!lines.length) throw new Error("El carrito está vacío.");
 
@@ -77,7 +79,7 @@ export async function createOrderFromCart(
       tax,
       total,
       currency,
-      paymentProvider: "paypal",
+      paymentProvider: provider,
       shippingAddress: customer.address as object | undefined,
       items: {
         create: items.map((i) => ({
@@ -145,6 +147,25 @@ export async function finalizePaidOrder(
         quantity: order.items.reduce((n, i) => n + i.quantity, 0),
         metadata: { orderNumber: order.number },
       },
+    ]);
+    // Emails: confirmación al cliente + aviso al admin. Best-effort: si fallan
+    // o no hay credenciales, no rompen el cobro (ya está pagado).
+    const forEmail = {
+      number: order.number,
+      email: order.email,
+      customerName: order.customerName,
+      total: order.total,
+      currency: order.currency,
+      items: order.items.map((i) => ({
+        name: i.name,
+        variantName: i.variantName,
+        quantity: i.quantity,
+        lineTotal: i.lineTotal,
+      })),
+    };
+    await Promise.allSettled([
+      sendOrderConfirmation(forEmail),
+      notifyAdminNewOrder(forEmail),
     ]);
     return order;
   });

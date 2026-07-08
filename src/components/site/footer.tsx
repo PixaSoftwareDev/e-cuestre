@@ -61,7 +61,19 @@ export async function Footer({
                 </Link>
               </li>
               <li>
-                <span className="text-fg/80">{t("footer.shipping")}</span>
+                <Link href="/devoluciones" className="text-fg/80 transition-colors hover:text-primary">
+                  Cambios y devoluciones
+                </Link>
+              </li>
+              <li>
+                <Link href="/terminos" className="text-fg/80 transition-colors hover:text-primary">
+                  Términos y condiciones
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacidad" className="text-fg/80 transition-colors hover:text-primary">
+                  Política de privacidad
+                </Link>
               </li>
             </ul>
           </div>

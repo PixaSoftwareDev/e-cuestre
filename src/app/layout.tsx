@@ -20,6 +20,11 @@ const inter = Inter({
 
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Ecuestre";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_DESCRIPTION =
+  "Piezas de primera calidad para el mundo del polo y la vida ecuestre. Diseño fino, materiales nobles, hechas para durar.";
+// Imagen para compartir en redes/WhatsApp (1200×630, recortada en Cloudinary).
+const OG_IMAGE =
+  "https://res.cloudinary.com/dukv3ov6t/image/upload/c_fill,w_1200,h_630/v1783296082/hawsrvxet7sy8odgi74m.jpg";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -27,12 +32,35 @@ export const metadata: Metadata = {
     default: `${siteName} — Equipamiento y estilo de alta gama`,
     template: `%s · ${siteName}`,
   },
-  description:
-    "Piezas de primera calidad para el mundo del polo y la vida ecuestre. Diseño fino, materiales nobles, hechas para durar.",
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "polo",
+    "ecuestre",
+    "talabartería",
+    "cuero",
+    "equitación",
+    "indumentaria ecuestre",
+  ],
   openGraph: {
     type: "website",
     siteName,
     locale: "es_AR",
+    title: `${siteName} — Equipamiento y estilo de alta gama`,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: `${siteName} — polo y vida ecuestre`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteName} — Equipamiento y estilo de alta gama`,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE],
   },
   robots: { index: true, follow: true },
   icons: {

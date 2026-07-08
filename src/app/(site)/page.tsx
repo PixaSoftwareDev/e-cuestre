@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ShieldCheck, Leaf, Recycle, Flame } from "lucide-react";
+import { ArrowRight, ShieldCheck, Leaf, Recycle, Tag } from "lucide-react";
 import {
   getBrands,
   getOffers,
@@ -130,7 +130,7 @@ export default async function HomePage() {
                     </p>
                     {maxDiscount > 0 && (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c0392b] px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-[0_4px_14px_rgba(192,57,43,0.35)]">
-                        <Flame className="h-3.5 w-3.5" strokeWidth={2} />
+                        <Tag className="h-3 w-3" strokeWidth={2.5} />
                         {t("home.offers.upTo")} −{maxDiscount}%
                       </span>
                     )}

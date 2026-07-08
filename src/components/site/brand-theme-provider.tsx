@@ -53,10 +53,10 @@ export function BrandThemeProvider({
   return (
     <Tag
       style={identity as React.CSSProperties}
-      // `text-fg` fija el color del texto a la var de la marca; sin esto los
-      // textos sin color explícito heredan el fg global y no contrastan con el
-      // fondo de la marca (ej. theme oscuro sobre fondo claro).
-      className={`${cls} text-fg${className ? ` ${className}` : ""}`}
+      // `bg-bg text-fg` fijan fondo y texto a las vars de la marca, juntos: sin
+      // el fondo, un theme oscuro deja texto claro sobre fondo claro (ilegible);
+      // sin el texto, hereda el fg global y no contrasta con el fondo de marca.
+      className={`${cls} bg-bg text-fg${className ? ` ${className}` : ""}`}
     >
       <style dangerouslySetInnerHTML={{ __html: css }} />
       {children}

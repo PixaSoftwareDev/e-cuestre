@@ -40,7 +40,7 @@ export default async function BrandPage({
   const shopHref = `/productos?marca=${b.slug}`;
 
   return (
-    <BrandThemeProvider theme={b.theme as BrandTheme | null} className="bg-bg">
+    <BrandThemeProvider theme={b.theme as BrandTheme | null}>
       {/* ── HERO ──────────────────────────────────────────── */}
       <BrandHero
         imageUrl={b.heroImageUrl}
